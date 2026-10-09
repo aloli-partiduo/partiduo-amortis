@@ -1,0 +1,29 @@
+{# SPDX-License-Identifier: AGPL-3.0-or-later. Saisie d'une immobilisation ou d'un composant (D-AMO-003) : formulaire du référentiel, et aperçu du tableau d'amortissement recalculé en HTMX à chaque changement (hx-post vers asset_preview, cible #amo-preview) ; sans JavaScript, l'aperçu suit l'enregistrement. #}{% extend "ui/base.html" %}
+{% block title %}{{ title }}{% endblock title %}
+{% block scripts %}<link rel="stylesheet" href="{% asset 'amortis/css/amortis.css' %}">{% endblock scripts %}
+{% block crumbs %}{% include "ui/_crumbs.html" %}{% endblock crumbs %}
+{% block heading %}{{ title }}{% endblock heading %}
+{% block actions %}{% for action in actions %}{% include "ui/_action.html" %}{% endfor %}{% endblock actions %}
+{% block content %}
+{% if intro %}<p class="pd-muted mb-3">{{ intro }} <a class="pd-link" href="{{ coefficients }}">{% translate "amortis_ui.coefficients.title" %}</a></p>{% endif %}
+<section class="pd-panel" aria-label="{{ title }}"><div class="pd-body">
+<form method="post" action="{{ form_action }}" class="pd-form" novalidate data-amo-asset-form hx-post="{{ preview_url }}" hx-trigger="change delay:300ms" hx-target="#amo-preview" hx-swap="innerHTML">
+  {% csrf_input %}
+  {% if form.base_errors %}<div class="notification is-danger is-light pd-alert" role="alert" id="pd-form-errors">{% include "ui/_icon.html" with name="triangle-alert" %}<div>{% for message in form.base_errors %}<p>{{ message }}</p>{% endfor %}</div></div>{% endif %}
+  {% for group in form.groups %}
+  <fieldset class="pd-fieldset">
+    {% if group.legend %}<legend>{{ group.legend }}</legend>{% endif %}
+    <div class="pd-form-grid">{% for field in group.fields %}{% include "ui/_field.html" %}{% endfor %}</div>
+  </fieldset>
+  {% endfor %}
+  <div class="pd-form-actions">
+    <button class="button is-primary pd-touch" type="submit">{{ form_submit }}</button>
+    {% if cancel_url %}<a href="{{ cancel_url }}">{% translate "ui.forms.cancel" %}</a>{% endif %}
+  </div>
+</form>
+</div></section>
+<section class="pd-panel" aria-labelledby="amo-preview-title">
+  <header><h2 id="amo-preview-title">{% translate "amortis_ui.form.preview" %}</h2></header>
+  <div id="amo-preview" aria-live="polite">{% if preview %}{% include "ui/_table.html" with table=preview %}{% else %}<div class="pd-body"><p class="pd-muted">{% translate "amortis_ui.form.preview_help" %}</p></div>{% endif %}</div>
+</section>
+{% endblock content %}

@@ -1,0 +1,40 @@
+name: partiduo-amortis
+version: 0.1.0
+
+description: |
+  Extension des immobilisations et des amortissements de Partiduo (ADR-003,
+  ADR-007 D6) : registre des immobilisations et de leurs composants,
+  amortissement linéaire et dégressif (France et Belgique) au prorata
+  temporis, durée d'usage et durée fiscale, amortissement dérogatoire,
+  dépréciations, cession et mise au rebut avec plus ou moins-value ;
+  écritures d'inventaire proposées puis passées par le contrat de la
+  Comptabilité, annulables par extourne ; tableaux 2054 et 2055, registre
+  de la 2035, état des immobilisations belge.
+
+authors:
+  - Philippe Nénert <it+claude.ai@aloli.fr>
+
+crystal: ">= 1.19.1"
+
+license: AGPL-3.0-or-later
+
+targets:
+  partiduo-amortis-manage:
+    main: manage.cr
+
+dependencies:
+  # Le cœur : registre, événements et contrat Partiduo::Api (Comptabilité,
+  # exercices, réglages du dossier).
+  partiduo:
+    path: ../partiduo-app
+  marten:
+    path: ../../marten
+
+development_dependencies:
+  # L'interface qui monte ui/bulma/ : nécessaire aux specs et à manage.cr ;
+  # la distribution l'apporte elle-même.
+  partiduo-ui-bulma:
+    path: ../partiduo-ui-bulma
+  ameba:
+    github: crystal-ameba/ameba
+    version: "~> 1.6"

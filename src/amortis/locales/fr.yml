@@ -1,0 +1,176 @@
+fr:
+  amortis:
+    module:
+      name: "Immobilisations et amortissements"
+    permissions:
+      read: "Consulter le registre des immobilisations, les plans d'amortissement et les états"
+      write: "Inscrire, modifier, déprécier et céder les immobilisations ; passer et extourner les écritures d'inventaire"
+      admin: "Régler l'extension et créer les comptes de l'inventaire"
+    menu:
+      amortis: "Immobilisations"
+      amortis_assets: "Registre des immobilisations"
+      amortis_postings: "Écritures d'inventaire"
+      amortis_statements: "États des immobilisations"
+      amortis_settings: "Immobilisations et amortissements"
+    methods:
+      linear: "Linéaire"
+      degressive: "Dégressif"
+      none: "Non amortissable"
+    fiscal_methods:
+      same: "Identique au plan comptable"
+      linear: "Linéaire (durée fiscale)"
+      degressive: "Dégressif fiscal"
+    day_counts:
+      actual: "Jours réels de l'exercice"
+      "360": "Année commerciale de 360 jours"
+    disposal_kinds:
+      sale: "Cession"
+      scrap: "Mise au rebut"
+    posting_kinds:
+      depreciation: "Dotations de l'exercice"
+      impairment: "Dépréciation"
+      disposal: "Sortie d'actif"
+    posting_statuses:
+      posted: "Passée"
+      cancelled: "Extournée"
+    statuses:
+      pending: "En attente de mise en service"
+      in_service: "En service"
+      depreciated: "Totalement amortie"
+      disposed: "Sortie"
+    rubric_groups:
+      intangible: "Immobilisations incorporelles"
+      tangible: "Immobilisations corporelles"
+      financial: "Immobilisations financières"
+      other: "Autres"
+      total: "Total"
+    rubrics:
+      establishment: "Frais d'établissement et de développement"
+      intangible: "Autres postes d'immobilisations incorporelles"
+      land: "Terrains"
+      building_own: "Constructions sur sol propre"
+      building_other: "Constructions sur sol d'autrui"
+      building_fittings: "Installations générales, agencements et aménagements des constructions"
+      technical: "Installations techniques, matériel et outillage industriels"
+      general_fittings: "Installations générales, agencements, aménagements divers"
+      transport: "Matériel de transport"
+      office: "Matériel de bureau et informatique, mobilier"
+      other_tangible: "Autres immobilisations corporelles"
+      in_progress: "Immobilisations corporelles en cours"
+      advances: "Avances et acomptes"
+      participations: "Participations"
+      securities: "Autres titres immobilisés"
+      loans: "Prêts et autres immobilisations financières"
+      be_establishment: "Frais d'établissement"
+      be_intangible: "Immobilisations incorporelles"
+      be_land_buildings: "Terrains et constructions"
+      be_plant: "Installations, machines et outillage"
+      be_furniture_vehicles: "Mobilier et matériel roulant"
+      be_leasing: "Location-financement et droits similaires"
+      be_other_tangible: "Autres immobilisations corporelles"
+      be_in_progress: "Immobilisations en cours et acomptes versés"
+      be_financial: "Immobilisations financières"
+      other: "Autres immobilisations"
+      total: "Total"
+    coefficient_sources:
+      cgi_39a_1960: "CGI, art. 39 A (biens acquis avant 2001)"
+      lf_2001: "Loi de finances pour 2001"
+      lfr_2008: "Loi de finances rectificative pour 2008 (biens acquis du 4 décembre 2008 au 31 décembre 2009)"
+    default_accounts:
+      expense_account: "Dotations aux amortissements sur immobilisations incorporelles et corporelles"
+      impairment_expense_account: "Dotations pour dépréciations des immobilisations incorporelles et corporelles"
+      impairment_income_account: "Reprises sur dépréciations des immobilisations incorporelles et corporelles"
+      derogatory_account: "Amortissements dérogatoires"
+      derogatory_expense_account: "Dotations aux provisions réglementées (immobilisations)"
+      derogatory_income_account: "Reprises sur provisions réglementées (immobilisations)"
+      disposal_expense_account: "Valeurs comptables des éléments d'actif cédés"
+      disposal_income_account: "Produits des cessions d'éléments d'actif"
+      disposal_receivable_account: "Créances sur cessions d'immobilisations"
+    accounts:
+      depreciation_of: "Amortissements — %{label}"
+      impairment_of: "Dépréciations — %{label}"
+    entries:
+      depreciation: "Dotations aux amortissements %{exercise}"
+      derogatory_charge: "Amortissements dérogatoires %{exercise} (dotation)"
+      derogatory_release: "Amortissements dérogatoires %{exercise} (reprise)"
+      derogatory_disposal: "Reprise des amortissements dérogatoires — sortie de %{code}"
+      impairment: "Dépréciation de l'immobilisation %{code}"
+      disposal: "Sortie d'actif %{code} — %{label}"
+    errors:
+      choice:
+        invalid: "Valeur non admise : %{value}."
+      account:
+        missing: "Le compte %{number} n'existe pas au plan comptable."
+        unset: "Un compte des réglages de l'extension n'est pas renseigné."
+      asset_account:
+        blank: "Indiquez le compte d'immobilisation."
+        invalid: "Le compte %{number} n'est pas un compte d'immobilisation (classe 2, hors amortissements et dépréciations)."
+      asset:
+        label:
+          blank: "Donnez une désignation à l'immobilisation."
+          too_long: "La désignation ne doit pas dépasser %{max} caractères."
+        code:
+          too_long: "Le numéro d'inventaire ne doit pas dépasser %{max} caractères."
+          taken: "Le numéro d'inventaire %{code} est déjà pris."
+        notes:
+          too_long: "Les notes ne doivent pas dépasser %{max} caractères."
+        gross_value:
+          positive: "La valeur brute doit être positive."
+        residual_value:
+          range: "La valeur résiduelle doit être positive ou nulle et inférieure à la valeur brute."
+        life_months:
+          range: "La durée doit aller de 1 à %{max} mois."
+        fiscal_method:
+          be: "Le plan fiscal distinct (amortissement dérogatoire) n'existe pas en Belgique."
+          not_depreciable: "Une immobilisation non amortissable n'a pas de plan fiscal."
+        in_service_on:
+          before_acquisition: "La mise en service ne peut précéder l'acquisition."
+        parent:
+          invalid: "Cette immobilisation principale n'existe pas."
+          nested: "Un composant ne peut pas avoir lui-même de composants."
+          disposed: "L'immobilisation principale est sortie de l'actif."
+        entry_line:
+          taken: "Cette ligne d'acquisition est déjà rattachée à une autre immobilisation."
+          unknown: "Cette ligne d'acquisition n'est pas une acquisition à inscrire."
+        card:
+          unknown: "La fiche %{code} n'existe pas."
+        locked: "Une écriture d'inventaire cite cette immobilisation : extournez-la avant de modifier son plan."
+        in_use: "Des écritures d'inventaire citent cette immobilisation : elle ne peut être supprimée."
+      degressive:
+        too_short: "Le dégressif fiscal exige une durée d'au moins trois ans."
+        used_asset: "Le dégressif fiscal est réservé aux biens neufs."
+        be_abolished: "Le dégressif est supprimé pour les biens acquis par une société depuis le 1er janvier 2020."
+      impairment:
+        amount:
+          zero: "Le montant de la dépréciation ne peut être nul."
+          too_large: "La dépréciation dépasse la valeur nette comptable."
+          release_too_large: "La reprise dépasse les dépréciations constatées."
+        date:
+          before_acquisition: "La dépréciation ne peut précéder l'acquisition."
+          after_disposal: "La dépréciation ne peut suivre la sortie de l'actif."
+        label:
+          too_long: "Le libellé ne doit pas dépasser %{max} caractères."
+        posted: "L'écriture de cette dépréciation est déjà passée."
+        in_use: "Une écriture d'inventaire cite cette dépréciation : elle ne peut être supprimée."
+      disposal:
+        exists: "Cette immobilisation est déjà sortie de l'actif."
+        none: "Cette immobilisation n'est pas sortie de l'actif."
+        part_of_group: "Ce composant est sorti avec son immobilisation principale : passez par elle."
+        posted: "L'écriture de cette sortie est déjà passée."
+        price:
+          negative: "Le prix de cession ne peut être négatif."
+          scrap: "Une mise au rebut n'a pas de prix de cession."
+        label:
+          too_long: "Le libellé ne doit pas dépasser %{max} caractères."
+        date:
+          before_acquisition: "La sortie ne peut précéder l'acquisition."
+          impairment_after: "Une dépréciation est datée après la sortie."
+          later_posted: "Des dotations d'un exercice postérieur à la sortie sont passées : extournez-les d'abord."
+      posting:
+        nothing: "Aucune dotation à passer pour cet exercice."
+        cancelled: "Cette écriture est déjà extournée."
+        date:
+          outside: "La date doit être dans l'exercice (du %{from} au %{to})."
+      ledger:
+        blank: "Choisissez un journal d'opérations diverses."
+        invalid: "Ce journal n'est pas un journal d'opérations diverses."

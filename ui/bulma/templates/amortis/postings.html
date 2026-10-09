@@ -1,0 +1,39 @@
+{# SPDX-License-Identifier: AGPL-3.0-or-later. Écritures d'inventaire d'un exercice (D-AMO-009) : choix de l'exercice, dotations proposées par immobilisation, écriture qui en résulte, obstacles, sorties et dépréciations à passer, formulaire pour passer l'écriture (journal d'opérations diverses, date) ; écritures passées, extournables. Rien n'est passé sans l'action de l'utilisateur. #}{% extend "ui/base.html" %}
+{% block title %}{{ title }}{% endblock title %}
+{% block scripts %}<link rel="stylesheet" href="{% asset 'amortis/css/amortis.css' %}">{% endblock scripts %}
+{% block crumbs %}{% include "ui/_crumbs.html" %}{% endblock crumbs %}
+{% block heading %}{{ title }}{% endblock heading %}
+{% block content %}
+<section class="pd-panel" aria-labelledby="amo-exercise-title">
+  <header><h2 id="amo-exercise-title">{% translate "amortis_ui.postings.exercise" %}</h2></header>
+  <div class="pd-body">{% if exercises %}<form method="get" action="" class="pd-inline-form"><label class="label" for="amo-year">{% translate "amortis_ui.postings.exercise" %}</label><div class="select"><select id="amo-year" name="year">{% for item in exercises %}<option value="{{ item.value }}"{% if item.selected %} selected{% endif %}>{{ item.label }}</option>{% endfor %}</select></div><button class="button pd-touch" type="submit">{% translate "ui.forms.choose" %}</button></form>{% else %}<p class="pd-muted">{% translate "amortis_ui.postings.no_exercise" %}</p>{% endif %}</div>
+</section>
+{% if error %}<div class="notification is-danger is-light pd-alert" role="alert">{% include "ui/_icon.html" with name="triangle-alert" %}<div><p>{{ error }}</p></div></div>{% endif %}
+{% if lines %}
+<section class="pd-panel" aria-labelledby="amo-proposal-title">
+  <header><h2 id="amo-proposal-title">{% translate "amortis_ui.proposal.title" %} {{ exercise }}</h2></header>
+  <div class="pd-body"><p class="help">{% translate "amortis_ui.proposal.help" %}</p></div>
+  {% if closed %}<div class="pd-body"><p class="pd-muted">{% translate "amortis_ui.proposal.closed" %}</p></div>{% endif %}
+  {% include "ui/_table.html" with table=lines %}
+  {% if blockers %}<div class="pd-body"><div class="notification is-warning is-light pd-alert" role="status" data-amo-blockers>{% include "ui/_icon.html" with name="triangle-alert" %}<div>{% for message in blockers %}<p>{{ message }}</p>{% endfor %}{% if settings_url %}<p><a class="pd-link" href="{{ settings_url }}">{% translate "amortis_ui.proposal.settings" %}</a></p>{% endif %}</div></div></div>{% endif %}
+  {% if disposals %}<div class="pd-body"><p class="help">{% translate "amortis_ui.proposal.disposals" %}</p><ul class="amo-list">{% for item in disposals %}<li><a class="pd-link" href="{{ item.url }}">{{ item.code }} · {{ item.label }}</a></li>{% endfor %}</ul></div>{% endif %}
+  {% if impairments %}<div class="pd-body"><p class="help">{% translate "amortis_ui.proposal.impairments" %}</p><ul class="amo-list">{% for item in impairments %}<li><a class="pd-link" href="{{ item.url }}">{{ item.date }} · {{ item.amount }}</a></li>{% endfor %}</ul></div>{% endif %}
+  {% if entry %}<div class="pd-body"><h3 class="pd-subtitle">{% translate "amortis_ui.entry.title" %}</h3></div>{% include "ui/_table.html" with table=entry %}{% endif %}
+  {% if can_post %}<div class="pd-body">
+    <form method="post" action="{{ post_url }}" class="pd-form" novalidate data-amo-post>
+      {% csrf_input %}
+      <input type="hidden" name="year" value="{{ year }}">
+      <div class="pd-form-grid">
+        <div class="field"><label class="label" for="amo-ledger">{% translate "amortis_ui.settings.ledger" %}</label><div class="select is-fullwidth"><select id="amo-ledger" name="ledger_id">{% for item in ledgers %}<option value="{{ item.value }}"{% if item.selected %} selected{% endif %}>{{ item.label }}</option>{% endfor %}</select></div></div>
+        <div class="field"><label class="label" for="amo-date">{% translate "amortis_ui.postings.date" %}</label><input class="input" type="date" id="amo-date" name="date" value="{{ date }}"></div>
+      </div>
+      <div class="pd-form-actions"><button class="button is-primary pd-touch" type="submit">{% include "ui/_icon.html" with name="check" %}<span>{% translate "amortis_ui.proposal.post" %}</span></button></div>
+    </form>
+  </div>{% endif %}
+</section>
+{% endif %}
+<section class="pd-panel" aria-labelledby="amo-history-title">
+  <header><h2 id="amo-history-title">{% translate "amortis_ui.postings.history" %}</h2></header>
+  {% include "ui/_table.html" with table=history %}
+</section>
+{% endblock content %}

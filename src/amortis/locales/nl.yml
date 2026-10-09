@@ -1,0 +1,176 @@
+nl:
+  amortis:
+    module:
+      name: "Vaste activa en afschrijvingen"
+    permissions:
+      read: "Het register van de vaste activa, de afschrijvingstabellen en de staten raadplegen"
+      write: "Vaste activa inschrijven, wijzigen, afwaarderen en buiten gebruik stellen; inventarisboekingen boeken en tegenboeken"
+      admin: "De uitbreiding instellen en de inventarisrekeningen aanmaken"
+    menu:
+      amortis: "Vaste activa"
+      amortis_assets: "Register van de vaste activa"
+      amortis_postings: "Inventarisboekingen"
+      amortis_statements: "Staten van de vaste activa"
+      amortis_settings: "Vaste activa en afschrijvingen"
+    methods:
+      linear: "Lineair"
+      degressive: "Degressief"
+      none: "Niet afschrijfbaar"
+    fiscal_methods:
+      same: "Gelijk aan het boekhoudkundige plan"
+      linear: "Lineair (fiscale duur)"
+      degressive: "Fiscaal degressief"
+    day_counts:
+      actual: "Werkelijke dagen van het boekjaar"
+      "360": "Handelsjaar van 360 dagen"
+    disposal_kinds:
+      sale: "Verkoop"
+      scrap: "Buitengebruikstelling"
+    posting_kinds:
+      depreciation: "Afschrijvingen van het boekjaar"
+      impairment: "Waardevermindering"
+      disposal: "Buitengebruikstelling van een actief"
+    posting_statuses:
+      posted: "Geboekt"
+      cancelled: "Tegengeboekt"
+    statuses:
+      pending: "In afwachting van ingebruikneming"
+      in_service: "In gebruik"
+      depreciated: "Volledig afgeschreven"
+      disposed: "Uit het actief"
+    rubric_groups:
+      intangible: "Immateriële vaste activa"
+      tangible: "Materiële vaste activa"
+      financial: "Financiële vaste activa"
+      other: "Overige"
+      total: "Totaal"
+    rubrics:
+      establishment: "Oprichtings- en ontwikkelingskosten"
+      intangible: "Overige immateriële vaste activa"
+      land: "Terreinen"
+      building_own: "Gebouwen op eigen grond"
+      building_other: "Gebouwen op grond van derden"
+      building_fittings: "Algemene installaties, inrichting en aanpassing van gebouwen"
+      technical: "Technische installaties, industriële machines en uitrusting"
+      general_fittings: "Algemene installaties, diverse inrichtingen"
+      transport: "Rollend materieel"
+      office: "Kantoor- en informaticamaterieel, meubilair"
+      other_tangible: "Overige materiële vaste activa"
+      in_progress: "Materiële vaste activa in aanbouw"
+      advances: "Voorschotten en vooruitbetalingen"
+      participations: "Deelnemingen"
+      securities: "Overige beleggingen"
+      loans: "Leningen en overige financiële vaste activa"
+      be_establishment: "Oprichtingskosten"
+      be_intangible: "Immateriële vaste activa"
+      be_land_buildings: "Terreinen en gebouwen"
+      be_plant: "Installaties, machines en uitrusting"
+      be_furniture_vehicles: "Meubilair en rollend materieel"
+      be_leasing: "Leasing en soortgelijke rechten"
+      be_other_tangible: "Overige materiële vaste activa"
+      be_in_progress: "Activa in aanbouw en vooruitbetalingen"
+      be_financial: "Financiële vaste activa"
+      other: "Overige vaste activa"
+      total: "Totaal"
+    coefficient_sources:
+      cgi_39a_1960: "Frans belastingwetboek, art. 39 A (activa verworven vóór 2001)"
+      lf_2001: "Franse financiewet voor 2001"
+      lfr_2008: "Franse gewijzigde financiewet voor 2008 (activa verworven van 4 december 2008 tot 31 december 2009)"
+    default_accounts:
+      expense_account: "Afschrijvingen op immateriële en materiële vaste activa"
+      impairment_expense_account: "Waardeverminderingen op immateriële en materiële vaste activa"
+      impairment_income_account: "Terugnemingen van waardeverminderingen op immateriële en materiële vaste activa"
+      derogatory_account: "Fiscale versnelde afschrijvingen"
+      derogatory_expense_account: "Toevoegingen aan gereglementeerde voorzieningen (vaste activa)"
+      derogatory_income_account: "Terugnemingen van gereglementeerde voorzieningen (vaste activa)"
+      disposal_expense_account: "Boekwaarde van de overgedragen activa"
+      disposal_income_account: "Opbrengsten uit de overdracht van activa"
+      disposal_receivable_account: "Vorderingen uit de overdracht van vaste activa"
+    accounts:
+      depreciation_of: "Afschrijvingen — %{label}"
+      impairment_of: "Waardeverminderingen — %{label}"
+    entries:
+      depreciation: "Afschrijvingen %{exercise}"
+      derogatory_charge: "Fiscale versnelde afschrijvingen %{exercise} (toevoeging)"
+      derogatory_release: "Fiscale versnelde afschrijvingen %{exercise} (terugneming)"
+      derogatory_disposal: "Terugneming van de fiscale versnelde afschrijvingen — overdracht van %{code}"
+      impairment: "Waardevermindering van het vast actief %{code}"
+      disposal: "Overdracht van het actief %{code} — %{label}"
+    errors:
+      choice:
+        invalid: "Niet toegestane waarde: %{value}."
+      account:
+        missing: "Rekening %{number} bestaat niet in het rekeningstelsel."
+        unset: "Een rekening van de instellingen van de uitbreiding is niet ingevuld."
+      asset_account:
+        blank: "Geef de rekening van het vast actief op."
+        invalid: "Rekening %{number} is geen rekening van vaste activa (klasse 2, zonder afschrijvingen en waardeverminderingen)."
+      asset:
+        label:
+          blank: "Geef het vast actief een omschrijving."
+          too_long: "De omschrijving mag niet langer zijn dan %{max} tekens."
+        code:
+          too_long: "Het inventarisnummer mag niet langer zijn dan %{max} tekens."
+          taken: "Inventarisnummer %{code} is al in gebruik."
+        notes:
+          too_long: "De notities mogen niet langer zijn dan %{max} tekens."
+        gross_value:
+          positive: "De brutowaarde moet positief zijn."
+        residual_value:
+          range: "De restwaarde moet nul of positief zijn en lager dan de brutowaarde."
+        life_months:
+          range: "De duur moet tussen 1 en %{max} maanden liggen."
+        fiscal_method:
+          be: "Een afzonderlijk fiscaal plan (versnelde afschrijving) bestaat niet in België."
+          not_depreciable: "Een niet-afschrijfbaar actief heeft geen fiscaal plan."
+        in_service_on:
+          before_acquisition: "De ingebruikneming kan niet vóór de verwerving liggen."
+        parent:
+          invalid: "Dit hoofdactief bestaat niet."
+          nested: "Een bestanddeel kan zelf geen bestanddelen hebben."
+          disposed: "Het hoofdactief is uit het actief verdwenen."
+        entry_line:
+          taken: "Deze aankooplijn is al aan een ander vast actief gekoppeld."
+          unknown: "Deze aankooplijn is geen in te schrijven aankoop."
+        card:
+          unknown: "Fiche %{code} bestaat niet."
+        locked: "Een inventarisboeking verwijst naar dit vast actief: boek ze eerst tegen voordat u het plan wijzigt."
+        in_use: "Inventarisboekingen verwijzen naar dit vast actief: het kan niet worden verwijderd."
+      degressive:
+        too_short: "Fiscaal degressief vereist een duur van ten minste drie jaar."
+        used_asset: "Fiscaal degressief is voorbehouden aan nieuwe goederen."
+        be_abolished: "Degressief is afgeschaft voor activa die een vennootschap sinds 1 januari 2020 verwerft."
+      impairment:
+        amount:
+          zero: "Het bedrag van de waardevermindering mag niet nul zijn."
+          too_large: "De waardevermindering overschrijdt de nettoboekwaarde."
+          release_too_large: "De terugneming overschrijdt de geboekte waardeverminderingen."
+        date:
+          before_acquisition: "De waardevermindering kan niet vóór de verwerving liggen."
+          after_disposal: "De waardevermindering kan niet na de overdracht liggen."
+        label:
+          too_long: "De omschrijving mag niet langer zijn dan %{max} tekens."
+        posted: "De boeking van deze waardevermindering is al gebeurd."
+        in_use: "Een inventarisboeking verwijst naar deze waardevermindering: ze kan niet worden verwijderd."
+      disposal:
+        exists: "Dit vast actief is al uit het actief verdwenen."
+        none: "Dit vast actief is niet uit het actief verdwenen."
+        part_of_group: "Dit bestanddeel is samen met zijn hoofdactief overgedragen: ga via dat actief."
+        posted: "De boeking van deze overdracht is al gebeurd."
+        price:
+          negative: "De verkoopprijs kan niet negatief zijn."
+          scrap: "Een buitengebruikstelling heeft geen verkoopprijs."
+        label:
+          too_long: "De omschrijving mag niet langer zijn dan %{max} tekens."
+        date:
+          before_acquisition: "De overdracht kan niet vóór de verwerving liggen."
+          impairment_after: "Een waardevermindering is gedateerd na de overdracht."
+          later_posted: "Afschrijvingen van een boekjaar na de overdracht zijn geboekt: boek ze eerst tegen."
+      posting:
+        nothing: "Geen afschrijvingen te boeken voor dit boekjaar."
+        cancelled: "Deze boeking is al tegengeboekt."
+        date:
+          outside: "De datum moet in het boekjaar vallen (van %{from} tot %{to})."
+      ledger:
+        blank: "Kies een dagboek voor diverse verrichtingen."
+        invalid: "Dit dagboek is geen dagboek voor diverse verrichtingen."

@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: AGPL-3.0-or-later */
+/* Écrans de l'extension des immobilisations : propriétés logiques et jetons
+   du thème seulement (ADR-005 D7). */
+.amo-disposed td,
+.amo-cancelled td {
+  color: var(--pd-muted);
+}
+
+.amo-cancelled td {
+  text-decoration: line-through;
+}
+
+.amo-list {
+  list-style: disc;
+  padding-inline-start: 1.5rem;
+}
+
+.pd-subtitle {
+  font-weight: 600;
+  margin-block-end: 0.5rem;
+}

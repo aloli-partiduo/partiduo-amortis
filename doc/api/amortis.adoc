@@ -1,0 +1,100 @@
+= Contrat `Amortis::Api`
+:toc: left
+:toc-title: Table des matières
+:icons: font
+
+Contrat public de l'extension `AMORTIS` (immobilisations et
+amortissements), sur le modèle de `Partiduo::Api` : acteur en premier
+argument, contrôle d'accès en première ligne (extension active, dossier
+d'entreprise, permission), vues immuables, commandes qui rendent un
+`Result` avec des erreurs par champ (`amortis.errors.*`), dans une
+transaction. L'interface `ui/bulma/` et les extensions qui en dépendraient
+(télédéclaration, `depends_on "AMORTIS"`) ne passent que par lui. Montants
+toujours en `BigDecimal`.
+
+== Permissions
+
+[cols="1,3",options="header"]
+|===
+|Permission |Ouvre
+|`amortis.read` |`settings`, `exercises`, `coefficients`, `assets`, `asset`, `components`, `schedule`, `preview_schedule`, `impairments`, `impairment`, `proposal`, `disposal_entry`, `postings`, `posting`, `statement`, `register`, `candidates` (+ `accounting.entry.read`), `tile`, `candidate_count`
+|`amortis.write` |`check_asset`, `create_asset`, `update_asset` (+ `accounting.account.write` pour créer un compte manquant), `delete_asset`, `add_impairment`, `delete_impairment`, `dispose`, `cancel_disposal`, `post_depreciation`, `post_impairment`, `post_disposal` (+ `accounting.entry.post`, journal en écriture), `cancel_posting` (+ `accounting.entry.cancel`)
+|`amortis.admin` |`update_settings`, `ensure_accounts` (+ `accounting.account.write`)
+|===
+
+Dans le dossier d'un foyer (`SettingsView#household?`), toute méthode lève
+`Partiduo::Api::ModuleDisabled` (D-AMO-002) ; `tile` et `candidate_count`
+rendent `nil`.
+
+== Registre
+
+* `create_asset(actor, AssetInput) : Result(AssetView)` — `code` vide :
+  numéro suivant (`IMM-00001`) ; comptes d'amortissements et de
+  dépréciations vides : déduits (`28…`, `29…` ; `2x9` en Belgique) et créés
+  s'ils manquent (`create_accounts`). Erreurs : `asset.label.*`,
+  `asset.code.*`, `asset_account.blank|invalid`, `account.missing`,
+  `asset.gross_value.positive`, `asset.residual_value.range`,
+  `asset.life_months.range`, `asset.fiscal_method.be|not_depreciable`,
+  `asset.in_service_on.before_acquisition`,
+  `degressive.too_short|used_asset|be_abolished`,
+  `asset.parent.invalid|nested|disposed`, `asset.entry_line.taken|unknown`,
+  `asset.card.unknown`, `choice.invalid`.
+* `update_asset(actor, id, AssetInput)` — mêmes règles ; `asset.locked`
+  si un champ du plan change alors qu'une écriture non extournée cite
+  l'immobilisation.
+* `delete_asset(actor, id)` — `asset.in_use` si une écriture d'inventaire
+  l'a citée.
+* `assets(actor, AssetQuery)`, `asset`, `components`, `schedule(actor, id) :
+  ScheduleView` (tableau d'amortissement, plan fiscal et dérogatoire, montants
+  déjà passés par exercice), `preview_schedule(actor, AssetInput)` (plan
+  d'une saisie non enregistrée).
+* `candidates(actor)` — acquisitions à inscrire : lignes au débit d'un
+  compte d'immobilisation des exercices ouverts, non rattachées.
+
+== Dépréciations et sorties
+
+* `add_impairment(actor, asset_id, ImpairmentInput(date, amount, label))` —
+  montant positif (dépréciation) ou négatif (reprise). Erreurs :
+  `impairment.amount.zero|too_large|release_too_large`,
+  `impairment.date.before_acquisition|after_disposal`.
+* `dispose(actor, asset_id, DisposalInput(disposed_on, kind, price, label))`
+  — `sale` ou `scrap` ; les composants sortent avec leur structure.
+  Erreurs : `disposal.exists`, `disposal.price.negative|scrap`,
+  `disposal.date.before_acquisition|impairment_after|later_posted`.
+* `cancel_disposal(actor, asset_id)` — `disposal.none|part_of_group|posted`.
+
+== Écritures d'inventaire
+
+* `proposal(actor, fiscal_year_id, ledger_id = nil) : ProposalView` — ce
+  que les plans prévoient moins ce qui est passé, lignes de l'écriture
+  regroupées par compte, obstacles (`account.missing`, `account.unset`,
+  `ledger.blank`), sorties et dépréciations de l'exercice à passer. N'écrit
+  rien.
+* `post_depreciation(actor, fiscal_year_id, PostInput(ledger_id, date,
+  asset_ids))` — `Partiduo::Api::Accounting.post_entry` dans un journal
+  d'opérations diverses, `source` = `amortis:depreciation:<début>`. Erreurs :
+  `posting.nothing`, `posting.date.outside`, `ledger.blank|invalid`,
+  `account.*` et celles de la Comptabilité.
+* `post_impairment(actor, impairment_id)`, `post_disposal(actor, asset_id)`,
+  `disposal_entry(actor, asset_id)` (lignes proposées de la sortie).
+* `cancel_posting(actor, id, date = nil)` — extourne par `cancel_entry` ;
+  l'abonnement à `entry.cancelled` marque l'écriture annulée, même
+  extournée depuis la Comptabilité.
+
+== États
+
+* `statement(actor, fiscal_year_id) : StatementView` — par rubrique
+  (2054 en France, PCMN en Belgique) : valeurs brutes, amortissements
+  ventilés (linéaire, dégressif), dépréciations, dérogatoires (2055,
+  cadre B : différentiel de durée, mode dégressif) ; `unposted`.
+* `register(actor, fiscal_year_id) : RegisterView` — registre de la 2035 :
+  plan fiscal, amortissements antérieurs, dotation, valeur résiduelle,
+  plus ou moins-values à court et à long terme.
+* `coefficients(actor)` — coefficients datés du dégressif français.
+
+== Réglages
+
+`settings`, `update_settings(actor, SettingsInput)` (journal d'opérations
+diverses, `day_count` `actual` ou `360`, comptes par défaut, personne
+physique belge ; erreurs `ledger.invalid`, `account.missing`,
+`choice.invalid`), `ensure_accounts(actor) : Result(Array(String))`.

@@ -1,0 +1,39 @@
+{# SPDX-License-Identifier: AGPL-3.0-or-later. Fiche d'une immobilisation : valeurs et comptes, tableau d'amortissement (export CSV et PDF), composants, dépréciations (saisie, écriture), sortie (saisie, écriture proposée puis passée), écritures d'inventaire qui la citent. #}{% extend "ui/base.html" %}
+{% block title %}{{ title }}{% endblock title %}
+{% block scripts %}<link rel="stylesheet" href="{% asset 'amortis/css/amortis.css' %}">{% endblock scripts %}
+{% block crumbs %}{% include "ui/_crumbs.html" %}{% endblock crumbs %}
+{% block heading %}{{ title }} <span class="tag {{ status_class }} is-light pd-status-tag" data-amo-status>{{ status }}</span>{% endblock heading %}
+{% block actions %}{% for action in actions %}{% include "ui/_action.html" %}{% endfor %}{% endblock actions %}
+{% block content %}
+{% if locked %}<p class="pd-muted mb-3" data-amo-locked>{% translate "amortis_ui.assets.locked" %}</p>{% endif %}
+<div class="pd-sections">
+<section class="pd-panel" aria-labelledby="amo-facts">
+  <header><h2 id="amo-facts">{% translate "amortis_ui.assets.facts" %}</h2></header>
+  <div class="pd-body"><dl class="pd-dl pd-detail">{% for item in facts %}<dt>{{ item.label }}</dt><dd{% if item.mono %} class="pd-mono"{% endif %}>{% if item.url %}<a class="pd-link" href="{{ item.url }}">{{ item.value }}</a>{% else %}{{ item.value }}{% endif %}</dd>{% endfor %}</dl></div>
+</section>
+<section class="pd-panel" aria-labelledby="amo-schedule-title">
+  <header><h2 id="amo-schedule-title">{% translate "amortis_ui.schedule.title" %}</h2></header>
+  {% include "ui/_table.html" with table=schedule %}
+</section>
+{% if components %}<section class="pd-panel" aria-labelledby="amo-components-title">
+  <header><h2 id="amo-components-title">{% translate "amortis_ui.components.title" %}</h2>{% if can_component %}<div class="pd-row-actions"><a class="button is-small" href="{{ component_url }}">{% include "ui/_icon.html" with name="plus" %}<span>{% translate "amortis_ui.components.new" %}</span></a></div>{% endif %}</header>
+  {% include "ui/_table.html" with table=components %}
+</section>{% endif %}
+<section class="pd-panel" aria-labelledby="amo-impairments-title">
+  <header><h2 id="amo-impairments-title">{% translate "amortis_ui.impairments.title" %}</h2></header>
+  {% include "ui/_table.html" with table=impairments %}
+  {% if impairment %}<div class="pd-body"><h3 class="pd-subtitle">{% translate "amortis_ui.impairments.new" %}</h3>{% include "ui/_form.html" with form=impairment, form_action=impairment_url, form_submit=impairment_submit %}</div>{% endif %}
+</section>
+<section class="pd-panel" aria-labelledby="amo-disposal-title">
+  <header><h2 id="amo-disposal-title">{% translate "amortis_ui.disposal.title" %}</h2>{% if disposal_actions %}<div class="pd-row-actions">{% for action in disposal_actions %}{% include "ui/_action.html" %}{% endfor %}</div>{% endif %}</header>
+  {% if disposal %}<div class="pd-body"><dl class="pd-dl pd-detail" data-amo-disposal>{% for item in disposal %}<dt>{{ item.label }}</dt><dd{% if item.mono %} class="pd-mono"{% endif %}>{{ item.value }}</dd>{% endfor %}</dl></div>
+  {% if disposal_entry %}<div class="pd-body"><h3 class="pd-subtitle">{% translate "amortis_ui.disposal.entry" %}</h3></div>{% include "ui/_table.html" with table=disposal_entry %}{% endif %}
+  {% elsif dispose %}<div class="pd-body"><p class="help mb-3">{% translate "amortis_ui.disposal.help" %}</p>{% include "ui/_form.html" with form=dispose, form_action=dispose_url, form_submit=dispose_submit %}</div>
+  {% else %}<div class="pd-body"><p class="pd-muted">{% translate "amortis_ui.disposal.none" %}</p></div>{% endif %}
+</section>
+<section class="pd-panel" aria-labelledby="amo-postings-title">
+  <header><h2 id="amo-postings-title">{% translate "amortis.menu.amortis_postings" %}</h2></header>
+  {% include "ui/_table.html" with table=postings %}
+</section>
+</div>
+{% endblock content %}

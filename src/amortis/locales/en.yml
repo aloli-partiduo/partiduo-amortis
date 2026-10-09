@@ -1,0 +1,176 @@
+en:
+  amortis:
+    module:
+      name: "Fixed assets and depreciation"
+    permissions:
+      read: "View the fixed asset register, depreciation schedules and statements"
+      write: "Register, edit, impair and dispose of fixed assets; post and reverse year-end entries"
+      admin: "Configure the extension and create the year-end accounts"
+    menu:
+      amortis: "Fixed assets"
+      amortis_assets: "Fixed asset register"
+      amortis_postings: "Year-end entries"
+      amortis_statements: "Fixed asset statements"
+      amortis_settings: "Fixed assets and depreciation"
+    methods:
+      linear: "Straight-line"
+      degressive: "Declining balance"
+      none: "Not depreciable"
+    fiscal_methods:
+      same: "Same as the accounting schedule"
+      linear: "Straight-line (tax life)"
+      degressive: "Tax declining balance"
+    day_counts:
+      actual: "Actual days of the financial year"
+      "360": "360-day commercial year"
+    disposal_kinds:
+      sale: "Sale"
+      scrap: "Scrapping"
+    posting_kinds:
+      depreciation: "Depreciation for the year"
+      impairment: "Impairment"
+      disposal: "Disposal"
+    posting_statuses:
+      posted: "Posted"
+      cancelled: "Reversed"
+    statuses:
+      pending: "Awaiting commissioning"
+      in_service: "In service"
+      depreciated: "Fully depreciated"
+      disposed: "Disposed of"
+    rubric_groups:
+      intangible: "Intangible assets"
+      tangible: "Tangible assets"
+      financial: "Financial assets"
+      other: "Other"
+      total: "Total"
+    rubrics:
+      establishment: "Start-up and development costs"
+      intangible: "Other intangible assets"
+      land: "Land"
+      building_own: "Buildings on own land"
+      building_other: "Buildings on third-party land"
+      building_fittings: "General installations, fixtures and fittings of buildings"
+      technical: "Technical installations, industrial plant and tools"
+      general_fittings: "General installations, sundry fixtures and fittings"
+      transport: "Vehicles"
+      office: "Office and IT equipment, furniture"
+      other_tangible: "Other tangible assets"
+      in_progress: "Tangible assets in progress"
+      advances: "Advances and down payments"
+      participations: "Equity interests"
+      securities: "Other long-term investments"
+      loans: "Loans and other financial assets"
+      be_establishment: "Formation expenses"
+      be_intangible: "Intangible fixed assets"
+      be_land_buildings: "Land and buildings"
+      be_plant: "Plant, machinery and equipment"
+      be_furniture_vehicles: "Furniture and vehicles"
+      be_leasing: "Leasing and similar rights"
+      be_other_tangible: "Other tangible fixed assets"
+      be_in_progress: "Assets under construction and advance payments"
+      be_financial: "Financial fixed assets"
+      other: "Other fixed assets"
+      total: "Total"
+    coefficient_sources:
+      cgi_39a_1960: "French Tax Code, art. 39 A (assets acquired before 2001)"
+      lf_2001: "Finance Act for 2001"
+      lfr_2008: "Amending Finance Act for 2008 (assets acquired from 4 December 2008 to 31 December 2009)"
+    default_accounts:
+      expense_account: "Depreciation charges on intangible and tangible assets"
+      impairment_expense_account: "Impairment charges on intangible and tangible assets"
+      impairment_income_account: "Impairment reversals on intangible and tangible assets"
+      derogatory_account: "Accelerated tax depreciation"
+      derogatory_expense_account: "Charges to regulated provisions (fixed assets)"
+      derogatory_income_account: "Reversals of regulated provisions (fixed assets)"
+      disposal_expense_account: "Carrying amount of assets disposed of"
+      disposal_income_account: "Proceeds from disposals of assets"
+      disposal_receivable_account: "Receivables on disposals of fixed assets"
+    accounts:
+      depreciation_of: "Depreciation — %{label}"
+      impairment_of: "Impairment — %{label}"
+    entries:
+      depreciation: "Depreciation charges %{exercise}"
+      derogatory_charge: "Accelerated tax depreciation %{exercise} (charge)"
+      derogatory_release: "Accelerated tax depreciation %{exercise} (reversal)"
+      derogatory_disposal: "Reversal of accelerated tax depreciation — disposal of %{code}"
+      impairment: "Impairment of fixed asset %{code}"
+      disposal: "Disposal of asset %{code} — %{label}"
+    errors:
+      choice:
+        invalid: "Value not allowed: %{value}."
+      account:
+        missing: "Account %{number} does not exist in the chart of accounts."
+        unset: "An account of the extension settings is not filled in."
+      asset_account:
+        blank: "Enter the fixed asset account."
+        invalid: "Account %{number} is not a fixed asset account (class 2, excluding depreciation and impairment)."
+      asset:
+        label:
+          blank: "Give the fixed asset a description."
+          too_long: "The description must not exceed %{max} characters."
+        code:
+          too_long: "The inventory number must not exceed %{max} characters."
+          taken: "Inventory number %{code} is already taken."
+        notes:
+          too_long: "Notes must not exceed %{max} characters."
+        gross_value:
+          positive: "The gross value must be positive."
+        residual_value:
+          range: "The residual value must be zero or positive and lower than the gross value."
+        life_months:
+          range: "The life must be between 1 and %{max} months."
+        fiscal_method:
+          be: "A separate tax schedule (accelerated depreciation) does not exist in Belgium."
+          not_depreciable: "A non-depreciable asset has no tax schedule."
+        in_service_on:
+          before_acquisition: "Commissioning cannot precede acquisition."
+        parent:
+          invalid: "This main fixed asset does not exist."
+          nested: "A component cannot itself have components."
+          disposed: "The main fixed asset has been disposed of."
+        entry_line:
+          taken: "This acquisition line is already linked to another fixed asset."
+          unknown: "This acquisition line is not an acquisition to register."
+        card:
+          unknown: "Card %{code} does not exist."
+        locked: "A year-end entry refers to this fixed asset: reverse it before changing its schedule."
+        in_use: "Year-end entries refer to this fixed asset: it cannot be deleted."
+      degressive:
+        too_short: "Tax declining balance requires a life of at least three years."
+        used_asset: "Tax declining balance is reserved for new assets."
+        be_abolished: "Declining balance is abolished for assets acquired by a company since 1 January 2020."
+      impairment:
+        amount:
+          zero: "The impairment amount cannot be zero."
+          too_large: "The impairment exceeds the net book value."
+          release_too_large: "The reversal exceeds the recorded impairments."
+        date:
+          before_acquisition: "The impairment cannot precede acquisition."
+          after_disposal: "The impairment cannot follow the disposal."
+        label:
+          too_long: "The label must not exceed %{max} characters."
+        posted: "The entry for this impairment has already been posted."
+        in_use: "A year-end entry refers to this impairment: it cannot be deleted."
+      disposal:
+        exists: "This fixed asset has already been disposed of."
+        none: "This fixed asset has not been disposed of."
+        part_of_group: "This component was disposed of with its main fixed asset: use the latter."
+        posted: "The entry for this disposal has already been posted."
+        price:
+          negative: "The sale price cannot be negative."
+          scrap: "Scrapping has no sale price."
+        label:
+          too_long: "The label must not exceed %{max} characters."
+        date:
+          before_acquisition: "The disposal cannot precede acquisition."
+          impairment_after: "An impairment is dated after the disposal."
+          later_posted: "Depreciation for a year after the disposal has been posted: reverse it first."
+      posting:
+        nothing: "No depreciation to post for this financial year."
+        cancelled: "This entry has already been reversed."
+        date:
+          outside: "The date must fall within the financial year (%{from} to %{to})."
+      ledger:
+        blank: "Choose a miscellaneous operations journal."
+        invalid: "This journal is not a miscellaneous operations journal."

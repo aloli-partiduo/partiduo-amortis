@@ -1,0 +1,294 @@
+= partiduo-amortis — décisions
+:toc: left
+:toc-title: Table des matières
+:icons: font
+
+Décisions prises pendant le portage de l'extension `AMORTIS`, quand un
+point n'était pas tranché par les ADR (contexte, choix, alternative
+écartée), puis amendements proposés au contrat du cœur. Les ADR ne sont
+jamais modifiés : un écart ou un complément y est proposé ici.
+
+Spécification : ADR-003 (contrat d'extension, D6 surface publique, D7
+événements ; sort des extensions amont : `noalyss-plugins` / AMORTIS →
+`partiduo-amortis`), ADR-007 D6 (le module libéral limite l'amortissement
+au linéaire, « les cas plus riches relèvent de `partiduo-amortis` »),
+ADR-005 (interface), ADR-006 (Comptabilité), ADR-011 A1 et A3
+(`incompatible_with`, dossier foyer). Source fonctionnelle : le greffon
+d'amortissement de NOALYSS (`noalyss-plugins/amortis`, la source *legacy*),
+dont on porte les fonctions et non le code, complétées des exigences
+françaises et belges.
+
+== Décisions
+
+=== D-AMO-001 — Une extension des dossiers d'entreprise, sur la Comptabilité (9 octobre 2026)
+
+*Choix.* Extension `AMORTIS`, `depends_on "ACCOUNTING"` (code vérifié dans
+`partiduo-app/src/accounting/manifest.cr`), `requires_core "~> 0.1"`,
+version lue dans `shard.yml`. Elle n'écrit aucune table comptable : toute
+écriture passe par `Partiduo::Api::Accounting.post_entry`. Contrat public
+`Amortis::Api` (`doc/api/amortis.adoc`), même plan qu'une application du
+cœur et que `partiduo-bankimport`.
+
+*Alternative écartée.* Étendre le registre des immobilisations du module
+`liberal` : il tient une comptabilité de trésorerie, en linéaire seul, sans
+journal ni écriture d'inventaire (ADR-007 D6).
+
+=== D-AMO-002 — Pas d'immobilisations dans un dossier foyer (9 octobre 2026)
+
+*Contexte.* L'amendement A1 d'ADR-011 ajoute `incompatible_with` entre
+*pièces du registre* ; le type de dossier `household` (A3) n'en est pas
+une, et la liste `Kind#excluded` du foyer est fixée par le cœur et contrôlée
+au seul provisionnement.
+
+*Choix.* `incompatible_with "PERSO"` (l'extension des finances d'un foyer,
+à venir ; une pièce absente du registre satisfait l'incompatibilité), et,
+dans un dossier `household`, le contrat lève `ModuleDisabled` : les écrans
+répondent 404, la tuile et le compteur disparaissent. L'activation n'est
+pas refusée par le cœur : amendement proposé A-AMO-1.
+
+=== D-AMO-003 — Registre des immobilisations (9 octobre 2026)
+
+*Choix.* Une immobilisation est une ligne propre (`amortis_asset`) :
+numéro d'inventaire (`IMM-00001` par défaut, unique sans casse),
+désignation, fiche facultative (quick code), notes ; comptes ; dates
+d'acquisition et de mise en service ; valeur brute, valeur résiduelle ;
+plan comptable (mode, durée d'usage en mois) et plan fiscal (mode, durée
+fiscale). Les durées se saisissent en années (décimales admises) et se
+gardent en mois.
+
+Correspondance avec l'application d'origine : la fiche porteuse devient
+une immobilisation (la fiche reste citée si l'on veut) ; « montant à
+amortir » et « nombre d'années » deviennent valeur brute et durée ;
+l'année de départ devient la date de mise en service ; le drapeau
+« visible » devient l'état (en service, amortie, sortie) ; les comptes de
+débit et de crédit deviennent les comptes de dotation et d'amortissements ;
+la table des annuités modifiables à la main n'est pas reprise : le plan est
+calculé, et l'on corrige par une dépréciation ou en extournant puis en
+modifiant (D-AMO-009) ; l'historique par année devient les écritures
+d'inventaire ; les éditions PDF par fiche et par année deviennent les
+exports CSV et PDF du tableau d'amortissement et des états.
+
+=== D-AMO-004 — Liens vers le cœur sans clé étrangère, acquisitions à inscrire (9 octobre 2026)
+
+*Choix.* Les identifiants du cœur (écriture et ligne d'acquisition,
+journal, écriture d'inventaire, exercice) sont relus par le contrat, sans
+clé étrangère (même règle que D-BKI-003). Les liens internes (`amortis_*`,
+`auth_user`) ont leurs clés étrangères ; domaines et cohérences contrôlés
+en base (modes, valeurs, durées, dates, prix de rebut nul, statut et
+extourne).
+
+« Acquisitions à inscrire » : les lignes au débit d'un compte
+d'immobilisation (hors `28`, `29`, `2x9`) des exercices ouverts, lues par
+`Accounting.entries` avec les droits de l'acteur, qu'aucune immobilisation
+ne cite ; l'écran les propose et préremplit la saisie. Compteur du menu et
+ligne « À traiter » du tableau de bord. Limite : 500 écritures lues
+(amendement proposé A-AMO-4).
+
+=== D-AMO-005 — Calcul des plans (9 octobre 2026)
+
+*Choix.* Fonction pure (`Amortis::Plan`), en `BigDecimal`, arrondi
+commercial au centime par exercice, la dernière dotation soldant le plan.
+
+* *Exercices* : ceux du socle (`Core.fiscal_years`), les trous comblés,
+  prolongés de douze mois en douze mois avant et après ; une dotation
+  d'exercice de 18 mois vaut 1,5 annuité.
+* *Linéaire* : du jour de la mise en service, *prorata temporis au jour* :
+  jours réels rapportés à la durée de l'exercice (défaut), ou année
+  commerciale de 360 jours (réglage). L'annuité est la base restante
+  répartie sur la durée d'usage restante : le plan repart ainsi de la
+  valeur nette après une dépréciation.
+* *Base* : valeur brute moins valeur résiduelle pour le plan comptable ;
+  valeur brute pour le plan fiscal.
+* Une immobilisation sans mise en service ou non amortissable (terrain,
+  fonds) n'a pas de dotation.
+
+=== D-AMO-006 — Dégressif fiscal français et belge (9 octobre 2026)
+
+*Choix.*
+
+* *France* (CGI, art. 39 A) : du premier jour du mois d'acquisition,
+  prorata en mois ; taux = taux linéaire × coefficient en vigueur *à la
+  date d'acquisition* : 1,5 / 2 / 2,5 avant 2001 ; 1,25 / 1,75 / 2,25
+  depuis 2001 ; 1,75 / 2,25 / 2,75 pour les biens acquis du 4 décembre 2008
+  au 31 décembre 2009 (LFR 2008), selon la durée (3-4 ans, 5-6 ans, plus de
+  6 ans). Table datée (`Coefficients::FR`, écran « Coefficients »), jamais
+  de coefficient en dur dans le calcul. Bascule au linéaire quand l'annuité
+  linéaire sur la durée restante dépasse la dégressive. Réservé aux biens
+  neufs d'au moins trois ans.
+* *Belgique* (CIR 92, art. 64) : double du taux linéaire plafonné à 40 %,
+  prorata temporis au jour de la mise en service, bascule au linéaire
+  quand l'annuité linéaire sur la valeur d'origine dépasse la dégressive.
+  Supprimé pour les biens acquis par une société depuis le 1er janvier 2020
+  (loi du 25 décembre 2017) : refusé sauf si le réglage « contribuable
+  personne physique » est coché.
+* Le dégressif peut servir de plan comptable ou, en France, de plan fiscal
+  seul (dérogatoire).
+
+=== D-AMO-007 — Approche par composants (9 octobre 2026)
+
+*Choix.* Un composant est une immobilisation rattachée à sa structure
+(`parent_id`), avec ses propres valeur, durée et plan (approche par composants du PCG) ;
+un seul niveau. La sortie de la structure emporte ses composants encore
+présents (même date, prix nul, une seule écriture) ; un composant se
+remplace en le sortant seul puis en en inscrivant un autre.
+
+=== D-AMO-008 — Sorties d'actif, plus ou moins-values (9 octobre 2026)
+
+*Choix.* Cession (prix) ou mise au rebut (prix nul) ; le plan s'arrête à la
+date de sortie, au jour près. L'écriture de sortie, proposée puis passée à
+la date de sortie, comprend :
+
+* la dotation complémentaire de l'exercice jusqu'à la sortie (moins ce qui
+  en serait déjà passé) ;
+* en France, le dérogatoire de l'exercice puis la reprise du cumul
+  (145 / 7872), la reprise des dépréciations (29… / 7816), la sortie de la
+  valeur brute et des amortissements avec la valeur comptable des éléments
+  cédés (675), le prix (462 / 775) ;
+* en Belgique, la sortie nette : amortissements, créance (416), valeur
+  brute, plus-value (763) ou moins-value (663) seule.
+
+Les plus ou moins-values fiscales (France) sont calculées sur le plan
+fiscal : court terme si le bien est détenu depuis moins de deux ans ; sinon,
+pour un bien amortissable, court terme à hauteur des amortissements
+déduits et long terme au-delà, une moins-value restant à court terme ; pour
+un bien non amortissable, long terme (CGI, art. 39 duodecies).
+
+=== D-AMO-009 — Écritures d'inventaire proposées, passées par le contrat, extournables (9 octobre 2026)
+
+*Choix.* Rien n'est passé d'office. Pour un exercice, l'extension *propose*
+ce que les plans prévoient moins ce qui est déjà passé (montants gardés par
+immobilisation et par exercice, `amortis_posting_line`) ; l'utilisateur
+choisit le journal d'opérations diverses et la date (fin d'exercice par
+défaut) et passe *une* écriture d'inventaire par `post_entry`, lignes
+regroupées par compte (6811 / 28…, 6872 / 145 ou 145 / 7872),
+`source` = `amortis:depreciation:<début>`. Dépréciations et sorties ont
+leur propre écriture. Une écriture s'annule par extourne
+(`cancel_entry`) ; l'abonnement à `entry.cancelled` (liste fermée d'ADR-003
+D7) la marque annulée, qu'elle soit extournée depuis l'extension ou depuis
+la Comptabilité, et ses montants redeviennent à proposer.
+
+Tant qu'une écriture non extournée cite une immobilisation, les champs de
+son plan (comptes, dates, valeurs, modes, durées, rattachement) sont figés :
+on extourne, on modifie, on repasse. Une sortie ne peut précéder des
+dotations passées d'un exercice postérieur. Aucun nouvel événement n'est
+publié ni demandé.
+
+=== D-AMO-010 — Dépréciations (9 octobre 2026)
+
+*Choix.* Montant signé à une date : dotation (6816 / 29…) ou reprise
+(29… / 7816), jamais au-delà de la valeur nette ni des dépréciations
+constatées. Le plan comptable repart, dès l'exercice suivant, de la valeur
+nette sur la durée restante (D-AMO-005) ; le plan fiscal l'ignore (la
+dépréciation d'un bien amortissable n'est pas déduite en tant que telle).
+
+=== D-AMO-011 — Réglages par régime (9 octobre 2026)
+
+*Choix.* Une ligne au plus (`amortis_setting`) ; à défaut, les valeurs du
+régime du dossier : PCG (6811, 6816, 7816, 145, 6872, 7872, 675, 775, 462)
+ou PCMN (630, 760, 663, 763, 416 ; pas de dérogatoire). S'y ajoutent le
+journal d'opérations diverses, le décompte des jours du linéaire et, en
+Belgique, le contribuable personne physique. Un compte de dotation propre
+peut être donné par immobilisation.
+
+=== D-AMO-012 — Comptes déduits et créés par le contrat (9 octobre 2026)
+
+*Choix.* Comptes d'amortissements et de dépréciations déduits du compte
+d'immobilisation : `28` + suite et `29` + suite en France (`2154` →
+`28154`, `29154`), `2x9` en Belgique (`240` → `2409`). Un compte absent est
+créé par `Accounting.create_account`, avec les droits de l'acteur
+(`accounting.account.write`) et un type explicite (amortissements :
+`asset_contra`). Les comptes par défaut absents du plan de base (6811,
+6816, 7816, 6872, 7872, 675, 775, 462 en France) sont créés par les données
+initiales d'un dossier d'entreprise neuf, l'extension active, ou par le
+bouton « Créer les comptes manquants » des réglages.
+
+=== D-AMO-013 — États 2054, 2055 et état belge (9 octobre 2026)
+
+*Choix.* Calculés depuis les plans (les dotations non passées sont
+signalées), par rubrique déduite du compte d'immobilisation (préfixe le
+plus long) : lignes du tableau 2054 en France (frais d'établissement,
+autres incorporelles, terrains, constructions, installations techniques,
+matériel de transport, de bureau…, financières), classes 20 à 28 du PCMN en
+Belgique. Colonnes : valeurs brutes (début, augmentations, diminutions,
+fin) ; amortissements (début, dotations, diminutions, fin, dont linéaire et
+dégressif) ; dépréciations ; dérogatoires (2055, cadre B : différentiel de
+durée, mode dégressif). Export CSV par tableau et PDF par le service neutre
+du cœur.
+
+=== D-AMO-014 — Registre de la 2035 (9 octobre 2026)
+
+*Contexte.* Le module `liberal` prépare la 2035 depuis son propre registre
+(linéaire seul) ; `partiduo-teledec` la transmet (`Builder.liberal_boxes`)
+et, avec la Comptabilité, ne joint que la balance (formule API Balance),
+sans les mouvements d'immobilisations des annexes 2054 et 2055.
+
+*Choix.* L'extension tient le registre des immobilisations et des
+amortissements de la 2035 sur le plan fiscal (base, mode, taux,
+amortissements antérieurs, dotation, valeur résiduelle, cessions et plus
+ou moins-values à court et à long terme) et l'expose par `Amortis::Api`
+(`register`, `statement`). Le branchement dans la 2035 de `liberal` et la
+liasse de `teledec` passe par le contrat du cœur : amendements proposés
+A-AMO-2 et A-AMO-3.
+
+=== D-AMO-015 — Interface : HTMX d'abord (9 octobre 2026)
+
+*Choix.* Le formulaire d'une immobilisation recalcule l'aperçu du plan à
+chaque changement (`hx-post` vers `asset_preview`, fragment
+`_preview.html`) ; sans JavaScript, l'aperçu suit l'enregistrement. Fiche
+avec tableau d'amortissement exportable, composants, dépréciations,
+sortie et écriture proposée ; écran des écritures d'inventaire (proposition,
+obstacles, journal et date, historique extournable) ; états par onglet.
+Tuile « Immobilisations en service » et compteur des acquisitions à
+inscrire par `PartiduoUi::Extensions.tile` et `counter`. Opal n'est pas
+nécessaire à cette version.
+
+=== D-AMO-016 — Droits de l'extension et du cœur (9 octobre 2026)
+
+*Choix.* `amortis.read` (registre, plans, états), `amortis.write` (saisir,
+déprécier, céder, passer et extourner les écritures), `amortis.admin`
+(réglages, comptes). Le contrat du cœur exige ses propres droits, avec
+l'acteur réel : `accounting.entry.post` et l'écriture dans le journal,
+`accounting.entry.cancel`, `accounting.account.write`,
+`accounting.entry.read` (acquisitions à inscrire).
+
+== Amendements proposés au contrat du cœur
+
+À soumettre à l'utilisateur ; l'extension les contourne sans modifier
+`partiduo-app`.
+
+A-AMO-1 — Exclure une extension d'un type de dossier (ADR-011 A1, A3)::
+  Permettre à une extension de se déclarer exclue d'un type
+  (`incompatible_with_kind "household"` au manifeste, ou
+  `InitialData.exclude(kind, code)`), contrôlé par
+  `Partiduo::Api::Modules.activate` et `check!` comme `incompatible_with`.
+  Aujourd'hui `Kind#excluded` est fixé par le cœur (modules d'entreprise du
+  cœur) et contrôlé au seul provisionnement. Contournement en place
+  (D-AMO-002) : `ModuleDisabled` dans un dossier foyer et
+  `incompatible_with "PERSO"`.
+
+A-AMO-2 — Annexes de la liasse fournies par une extension (télédéclaration)::
+  Un point d'accroche du cœur où une extension déclare les cases d'un
+  formulaire pour un exercice (par exemple
+  `Partiduo::Api::TaxAnnexes.register("AMORTIS", %w[2054 2055]) { |actor, fiscal_year_id| … }`,
+  cases par formulaire et zone, table de correspondance datée par
+  millésime comme celle de la 2035 de `liberal`), que `partiduo-teledec`
+  joindrait à la liasse comme il joint la 2035. Sans lui, `teledec` devrait
+  dépendre du shard `partiduo-amortis`. Contournement : états à l'écran et
+  en CSV ou PDF, à reporter ; chiffres exposés par `Amortis::Api.statement`.
+
+A-AMO-3 — Immobilisations de la 2035 fournies par une extension (module `liberal`)::
+  Une source d'immobilisations enregistrable auprès du module `liberal`
+  (par exemple `Partiduo::Api::Liberal.register_asset_source`) pour qu'un
+  BNC tenant la Comptabilité complète voie, dans sa 2035 (tableau des
+  immobilisations et des amortissements, dotation de l'exercice, plus ou
+  moins-values), les plans d'`AMORTIS` (dégressif, composants, cessions)
+  au lieu de son registre linéaire. Contournement : registre de la 2035
+  tenu et exporté par l'extension (D-AMO-014).
+
+A-AMO-4 — Lecture d'une ligne d'écriture par son identifiant (Comptabilité)::
+  `Partiduo::Api::Accounting.entry_line(actor, id)` (ou un critère
+  `line_ids` d'`EntryQuery`) pour rattacher une acquisition sans relire les
+  écritures des exercices ouverts. Contournement : recherche par préfixe
+  de compte `2`, 500 écritures au plus (D-AMO-004).
+
+Aucun nouvel événement n'est demandé à ADR-003 D7.

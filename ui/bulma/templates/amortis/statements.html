@@ -1,0 +1,20 @@
+{# SPDX-License-Identifier: AGPL-3.0-or-later. États d'un exercice (D-AMO-013, D-AMO-014) : choix de l'exercice, onglets (tableau des immobilisations et des amortissements, registre de la 2035), tableaux exportables en CSV, état complet en PDF ; dotations non encore passées signalées. #}{% extend "ui/base.html" %}
+{% block title %}{{ title }}{% endblock title %}
+{% block scripts %}<link rel="stylesheet" href="{% asset 'amortis/css/amortis.css' %}">{% endblock scripts %}
+{% block crumbs %}{% include "ui/_crumbs.html" %}{% endblock crumbs %}
+{% block heading %}{{ title }}{% endblock heading %}
+{% block content %}
+<section class="pd-panel" aria-labelledby="amo-choice-title">
+  <header><h2 id="amo-choice-title">{% translate "amortis_ui.postings.exercise" %}</h2></header>
+  <div class="pd-body">{% if exercises %}<form method="get" action="" class="pd-inline-form"><input type="hidden" name="kind" value="{{ kind }}"><label class="label" for="amo-year">{% translate "amortis_ui.postings.exercise" %}</label><div class="select"><select id="amo-year" name="year">{% for item in exercises %}<option value="{{ item.value }}"{% if item.selected %} selected{% endif %}>{{ item.label }}</option>{% endfor %}</select></div><button class="button pd-touch" type="submit">{% translate "ui.forms.choose" %}</button></form>{% else %}<p class="pd-muted">{% translate "amortis_ui.postings.no_exercise" %}</p>{% endif %}</div>
+</section>
+<nav class="tabs" aria-label="{% translate 'amortis_ui.statements.tabs' %}"><ul>{% for tab in tabs %}<li{% if tab.current %} class="is-active"{% endif %}><a href="{{ tab.url }}"{% if tab.current %} aria-current="page"{% endif %}>{{ tab.label }}</a></li>{% endfor %}</ul></nav>
+<p class="pd-muted mb-3">{{ intro }}</p>
+{% if unposted %}<div class="notification is-warning is-light pd-alert" role="status" data-amo-unposted>{% include "ui/_icon.html" with name="triangle-alert" %}<div><p>{% translate "amortis_ui.statements.unposted" %} {{ unposted }}</p><p><a class="pd-link" href="{{ postings_url }}">{% translate "amortis.menu.amortis_postings" %}</a></p></div></div>{% endif %}
+{% if tables %}{% for table in tables %}
+<section class="pd-panel" aria-labelledby="{{ table.id }}-title">
+  <header><h2 id="{{ table.id }}-title">{{ table.caption }}</h2></header>
+  {% include "ui/_table.html" with table=table %}
+</section>
+{% endfor %}{% endif %}
+{% endblock content %}
