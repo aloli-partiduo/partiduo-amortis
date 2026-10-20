@@ -14,6 +14,14 @@ require "../config/settings/**"
 # Migrations du cœur et de l'extension.
 require "partiduo/cli"
 require "../src/partiduo-amortis/cli"
+# Branchement sur TELEDEC (A-AMO-2) : comme une distribution qui compose les
+# deux extensions, le fichier d'enregistrement, les migrations et les
+# applications de `partiduo-teledec`.
+require "../src/partiduo-amortis/teledec"
+require "partiduo-teledec/cli"
+Marten.configure do |config|
+  config.installed_apps = config.installed_apps + Teledec::INSTALLED_APPS
+end
 
 require "marten/spec"
 require "marten_auth/spec"

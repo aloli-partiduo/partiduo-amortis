@@ -41,3 +41,12 @@ module Amortis
   # distribution après `Partiduo::INSTALLED_APPS`.
   INSTALLED_APPS = [Amortis::App] of Marten::Apps::Config.class
 end
+
+# Immobilisations de la 2035 (A-AMO-3, D-AMO-018) : un professionnel libéral
+# qui tient la Comptabilité et l'extension voit sa 2035 préparée avec les
+# plans de l'extension (dégressif, composants, cessions) au lieu du registre
+# linéaire du module `liberal`. Accroche du cœur : le bloc n'est appelé que
+# si `AMORTIS` est actif, avec l'acteur système.
+Partiduo::Api::Liberal.register_asset_source(Amortis::CODE) do |actor, year|
+  Amortis::Api.liberal_assets(actor, year)
+end

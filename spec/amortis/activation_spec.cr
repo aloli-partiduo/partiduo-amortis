@@ -18,7 +18,9 @@ describe "Extension AMORTIS : manifeste et activation (ADR-003 D2)" do
     manifest.requires_core.should eq("~> 0.1")
     manifest.permissions.should eq(["amortis.read", "amortis.write", "amortis.admin"])
     manifest.depends_on.should eq(["ACCOUNTING"])
-    manifest.incompatible_with.should eq(["PERSO"])
+    manifest.incompatible_with.should be_empty
+    manifest.incompatible_with_kind.should eq(["household"])
+    Partiduo::Api::InitialData.excluded_modules("household").should contain(Amortis::CODE)
     manifest.subscribed_events.should eq(["entry.cancelled"])
     manifest.uis.map(&.path).should eq(["ui/bulma"])
     manifest.menus.map { |menu| {menu.code, menu.parent, menu.route} }.should eq([
@@ -72,10 +74,19 @@ describe "Extension AMORTIS : manifeste et activation (ADR-003 D2)" do
       .should eq(["amortis.errors.account.missing"])
   end
 
-  it "est indisponible dans le dossier d'un foyer (D-AMO-002)" do
+  it "est exclue du dossier d'un foyer par le cœur : activation et démarrage refusés (D-AMO-020)" do
     S.setup
     Api.assets(S.reader).should be_empty
     Marten::DB::Connection.default.open(&.exec("UPDATE core_settings SET kind = 'household'"))
+    # Dossier foyer où l'extension était déjà active : le démarrage la nomme.
+    Partiduo::Modules.kind_errors(Partiduo::Modules::State.active_codes, "household")
+      .should contain("AMORTIS est exclu des dossiers de type household, actif")
+    expect_raises(Partiduo::Modules::ConfigurationError, /AMORTIS est exclu/) { Partiduo::Modules.check! }
+    Partiduo::Api::Modules.deactivate(S.system, Amortis::CODE).value!
+    Partiduo::Api::Modules.activate(S.system, Amortis::CODE).error_keys
+      .should eq(["modules.errors.activation.excluded_kind"])
+    Partiduo::Modules.kind_errors(Partiduo::Modules::State.active_codes, "household").join("\n")
+      .should_not contain("AMORTIS")
     expect_raises(Partiduo::Api::ModuleDisabled) { Api.assets(S.reader) }
     Api.tile(S.accountant).should be_nil
   end

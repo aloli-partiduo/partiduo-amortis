@@ -5,8 +5,8 @@
 
 Contrat public de l'extension `AMORTIS` (immobilisations et
 amortissements), sur le modèle de `Partiduo::Api` : acteur en premier
-argument, contrôle d'accès en première ligne (extension active, dossier
-d'entreprise, permission), vues immuables, commandes qui rendent un
+argument, contrôle d'accès en première ligne (extension active,
+permission), vues immuables, commandes qui rendent un
 `Result` avec des erreurs par champ (`amortis.errors.*`), dans une
 transaction. L'interface `ui/bulma/` et les extensions qui en dépendraient
 (télédéclaration, `depends_on "AMORTIS"`) ne passent que par lui. Montants
@@ -17,14 +17,15 @@ toujours en `BigDecimal`.
 [cols="1,3",options="header"]
 |===
 |Permission |Ouvre
-|`amortis.read` |`settings`, `exercises`, `coefficients`, `assets`, `asset`, `components`, `schedule`, `preview_schedule`, `impairments`, `impairment`, `proposal`, `disposal_entry`, `postings`, `posting`, `statement`, `register`, `candidates` (+ `accounting.entry.read`), `tile`, `candidate_count`
+|`amortis.read` |`settings`, `exercises`, `coefficients`, `assets`, `asset`, `components`, `schedule`, `preview_schedule`, `impairments`, `impairment`, `proposal`, `disposal_entry`, `postings`, `posting`, `statement`, `register`, `liasse_annexes`, `liberal_assets`, `candidates`, `candidate` (+ `accounting.entry.read`), `tile`, `candidate_count`
 |`amortis.write` |`check_asset`, `create_asset`, `update_asset` (+ `accounting.account.write` pour créer un compte manquant), `delete_asset`, `add_impairment`, `delete_impairment`, `dispose`, `cancel_disposal`, `post_depreciation`, `post_impairment`, `post_disposal` (+ `accounting.entry.post`, journal en écriture), `cancel_posting` (+ `accounting.entry.cancel`)
 |`amortis.admin` |`update_settings`, `ensure_accounts` (+ `accounting.account.write`)
 |===
 
-Dans le dossier d'un foyer (`SettingsView#household?`), toute méthode lève
-`Partiduo::Api::ModuleDisabled` (D-AMO-002) ; `tile` et `candidate_count`
-rendent `nil`.
+Le dossier d'un foyer exclut l'extension : `incompatible_with_kind
+"household"` au manifeste, le cœur refuse son activation, le
+provisionnement et le démarrage d'un foyer où elle serait active
+(D-AMO-020, qui remplace le `ModuleDisabled` de D-AMO-002).
 
 == Registre
 
@@ -49,7 +50,12 @@ rendent `nil`.
   déjà passés par exercice), `preview_schedule(actor, AssetInput)` (plan
   d'une saisie non enregistrée).
 * `candidates(actor)` — acquisitions à inscrire : lignes au débit d'un
-  compte d'immobilisation des exercices ouverts, non rattachées.
+  compte d'immobilisation des exercices ouverts, non rattachées, lues page
+  après page sans plafond (D-AMO-019).
+* `candidate(actor, line_id) : CandidateView?` — la ligne relue par son
+  identifiant (`Accounting.entry_line`) si c'est une acquisition à
+  inscrire ; `AssetInput#entry_line_id` est contrôlé de même
+  (`amortis.errors.asset.entry_line.unknown`, `.taken`).
 
 == Dépréciations et sorties
 
@@ -90,7 +96,31 @@ rendent `nil`.
 * `register(actor, fiscal_year_id) : RegisterView` — registre de la 2035 :
   plan fiscal, amortissements antérieurs, dotation, valeur résiduelle,
   plus ou moins-values à court et à long terme.
+* `liasse_annexes(actor, fiscal_year_id) : Hash(String, Hash(String, BigDecimal))?`
+  — annexes 2054 et 2055 en zones de TELEDEC (formulaire → zone → euros
+  entiers, zones nulles omises ; table datée par millésime, millésime 2023
+  et suivants) ; `nil` hors de France ou si tout est nul (D-AMO-017).
+* `liberal_assets(actor, year) : Partiduo::Api::Liberal::AssetSourceView?`
+  — immobilisations et cessions de la 2035 de l'année (registre fiscal de
+  l'exercice clos cette année-là) ; `nil` hors de France, sans exercice ou
+  sans immobilisation (D-AMO-018).
 * `coefficients(actor)` — coefficients datés du dégressif français.
+
+== Branchements
+
+* *2035 du module `liberal`* (A-AMO-3) : l'extension s'enregistre au
+  chargement par `Partiduo::Api::Liberal.register_asset_source("AMORTIS")`
+  (bloc : `liberal_assets`) ; le module ne l'appelle que si `AMORTIS` est
+  actif, et ses immobilisations remplacent alors le registre linéaire du
+  module.
+* *Liasse transmise par `partiduo-teledec`* (A-AMO-2) :
+  `require "partiduo-amortis/teledec"` (fichier
+  `src/partiduo-amortis/teledec.cr`, à requérir par la distribution qui
+  compose les deux extensions) enregistre
+  `Teledec::Api.register_annexes("AMORTIS", %w[2054 2055])` (bloc :
+  `liasse_annexes`) ; TELEDEC joint les annexes à la liasse du réel
+  normal si `AMORTIS` est actif. Le métier de l'extension ne dépend pas de
+  `partiduo-teledec`.
 
 == Réglages
 

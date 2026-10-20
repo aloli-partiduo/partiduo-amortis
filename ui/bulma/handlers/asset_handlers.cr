@@ -225,7 +225,7 @@ module Amortis
                          "in_service_on" => view.in_service_on.try(&.to_s("%F")) || ""})
         end
         if line = query("line").to_i64?
-          if candidate = Api.candidates(actor).find(&.line_id.==(line))
+          if candidate = Api.candidate(actor, line)
             values.merge!({"entry_line_id" => line.to_s, "asset_account" => candidate.account, "label" => candidate.label,
                            "acquired_on" => candidate.date.to_s("%F"), "in_service_on" => candidate.date.to_s("%F"),
                            "gross_value" => fmt.input_number(candidate.amount)})

@@ -44,13 +44,6 @@ module Amortis
       "fr"
     end
 
-    # Dossier d'un foyer (ADR-011 A3) : l'extension n'y sert pas (D-AMO-002).
-    def self.household? : Bool
-      Partiduo::Api::Core.settings(Partiduo::Api::Actor.system).household?
-    rescue Partiduo::Api::NotFound
-      false
-    end
-
     def self.row : Setting?
       Setting.all.order(:id).first
     end

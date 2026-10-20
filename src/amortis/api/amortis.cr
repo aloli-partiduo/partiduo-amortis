@@ -363,17 +363,43 @@ module Amortis
       Statements.register(Schedules::Context.new, Records.fiscal_exercise(fiscal_year_id))
     end
 
-    # Acquisitions à inscrire (D-AMO-004). Exige aussi
+    # Annexes 2054 et 2055 de la liasse d'un exercice, en zones de TELEDEC
+    # (A-AMO-2, D-AMO-017) : formulaire → zone → montant en euros entiers ;
+    # `nil` hors de France ou si tout est nul. Fournies à
+    # `Teledec::Api.register_annexes` par `src/partiduo-amortis/teledec.cr`.
+    def self.liasse_annexes(actor : Actor, fiscal_year_id : Int64) : Hash(String, Hash(String, BigDecimal))?
+      authorize!(actor, READ)
+      Annexes.boxes(Statements.statement(Schedules::Context.new, Records.fiscal_exercise(fiscal_year_id)))
+    end
+
+    # Immobilisations de la 2035 de l'année `year` (A-AMO-3, D-AMO-018) :
+    # registre fiscal de l'exercice clos cette année-là, au format du module
+    # `liberal` ; `nil` hors de France, sans exercice ou sans immobilisation.
+    # Source enregistrée auprès de `Partiduo::Api::Liberal` (`app.cr`).
+    def self.liberal_assets(actor : Actor, year : Int32) : Partiduo::Api::Liberal::AssetSourceView?
+      authorize!(actor, READ)
+      LiberalSource.view(year)
+    end
+
+    # Acquisitions à inscrire (D-AMO-004, D-AMO-019). Exige aussi
     # `accounting.entry.read` (sinon : aucune).
     def self.candidates(actor : Actor) : Array(CandidateView)
       authorize!(actor, READ)
       Candidates.list(actor)
     end
 
+    # Acquisition à inscrire de la ligne d'écriture `line_id`, relue par son
+    # identifiant (`Accounting.entry_line`, D-AMO-019) ; `nil` si la ligne
+    # n'est pas lisible, déjà citée, ou n'est pas une acquisition d'un
+    # exercice ouvert.
+    def self.candidate(actor : Actor, line_id : Int64) : CandidateView?
+      authorize!(actor, READ)
+      Candidates.find(actor, line_id)
+    end
+
     # --- Tableau de bord ---------------------------------------------------------------
 
-    # Tuile ; `nil` si l'extension est inactive, le dossier celui d'un foyer
-    # ou l'acteur sans droit.
+    # Tuile ; `nil` si l'extension est inactive ou l'acteur sans droit.
     def self.tile(actor : Actor) : TileView?
       return unless available?(actor)
       context = Schedules::Context.new
@@ -390,16 +416,16 @@ module Amortis
 
     # --- Outils ------------------------------------------------------------------------
 
-    # Extension active, lisible par l'acteur, dossier d'entreprise.
+    # Extension active et lisible par l'acteur.
     private def self.available?(actor : Actor) : Bool
-      Partiduo::Modules.active?(MODULE_CODE) && actor.can?(READ) && !Settings.household?
+      Partiduo::Modules.active?(MODULE_CODE) && actor.can?(READ)
     end
 
-    # Extension active et permission ; le dossier d'un foyer n'a pas
-    # d'immobilisations : l'extension y est indisponible (D-AMO-002).
+    # Extension active et permission. Le dossier d'un foyer n'a pas
+    # d'immobilisations : le manifeste l'en exclut (`incompatible_with_kind`,
+    # D-AMO-020), le cœur refuse l'activation et le démarrage.
     private def self.authorize!(actor : Actor, permission : String) : Nil
       Guard.authorize!(actor, permission, module_code: MODULE_CODE)
-      raise Partiduo::Api::ModuleDisabled.new(MODULE_CODE) if Settings.household?
     end
   end
 end

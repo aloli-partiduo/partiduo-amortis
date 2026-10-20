@@ -57,7 +57,10 @@ diverses ; extournables, ici ou dans la Comptabilité (`entry.cancelled`).
 
 |États
 |Tableaux 2054 et 2055 (dont dérogatoires) de la liasse, état des
-immobilisations belge (PCMN), registre de la 2035 ; CSV et PDF.
+immobilisations belge (PCMN), registre de la 2035 ; CSV et PDF. Les
+annexes 2054 et 2055 sont jointes à la liasse transmise par
+`partiduo-teledec` (réel normal, D-AMO-017) ; les immobilisations
+alimentent la 2035 du module `liberal` (D-AMO-018).
 |===
 
 Correspondance avec l'application d'origine : la fiche amortie devient une
@@ -74,6 +77,7 @@ tableau d'amortissement et des états (D-AMO-003).
 src/
 ├── partiduo-amortis.cr        # point d'entrée du shard
 ├── partiduo-amortis/cli.cr    # migrations : require "partiduo-amortis/cli"
+├── partiduo-amortis/teledec.cr # annexes 2054, 2055 fournies à partiduo-teledec
 └── amortis/                   # métier (application Marten « amortis »)
     ├── app.cr, manifest.cr    # code AMORTIS, permissions, menus, abonnement
     ├── initial_data.cr        # comptes de l'inventaire d'un dossier neuf
@@ -96,14 +100,18 @@ ui/
 require "partiduo-ui-bulma/partiduo_ui"
 require "partiduo-amortis"
 require "partiduo-amortis/ui/bulma"
+# avec partiduo-teledec, après require "partiduo-teledec" :
+require "partiduo-amortis/teledec"
 # installed_apps += Amortis::INSTALLED_APPS + Amortis::Ui::INSTALLED_APPS
 # ligne de commande : require "partiduo-amortis/cli"
 ----
 
 L'extension exige la Comptabilité (`depends_on "ACCOUNTING"`) et un journal
 d'opérations diverses ; elle s'active par dossier
-(`Partiduo::Api::Modules.activate`, écran « Modules ») et n'est pas
-disponible dans un dossier foyer.
+(`Partiduo::Api::Modules.activate`, écran « Modules ») ; le cœur la
+refuse dans un dossier foyer (`incompatible_with_kind "household"`,
+D-AMO-020). `partiduo-teledec` n'est qu'une dépendance de développement :
+la distribution qui le compose ajoute `require "partiduo-amortis/teledec"`.
 
 == Développement local
 

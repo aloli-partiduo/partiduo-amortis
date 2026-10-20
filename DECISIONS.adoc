@@ -44,7 +44,8 @@ au seul provisionnement.
 à venir ; une pièce absente du registre satisfait l'incompatibilité), et,
 dans un dossier `household`, le contrat lève `ModuleDisabled` : les écrans
 répondent 404, la tuile et le compteur disparaissent. L'activation n'est
-pas refusée par le cœur : amendement proposé A-AMO-1.
+pas refusée par le cœur : amendement proposé A-AMO-1. _Remplacée par
+D-AMO-020 (20 octobre 2026)._
 
 === D-AMO-003 — Registre des immobilisations (9 octobre 2026)
 
@@ -82,7 +83,8 @@ d'immobilisation (hors `28`, `29`, `2x9`) des exercices ouverts, lues par
 `Accounting.entries` avec les droits de l'acteur, qu'aucune immobilisation
 ne cite ; l'écran les propose et préremplit la saisie. Compteur du menu et
 ligne « À traiter » du tableau de bord. Limite : 500 écritures lues
-(amendement proposé A-AMO-4).
+(amendement proposé A-AMO-4). _Limite levée et rattachement par
+`entry_line` : D-AMO-019 (20 octobre 2026)._
 
 === D-AMO-005 — Calcul des plans (9 octobre 2026)
 
@@ -228,7 +230,8 @@ amortissements antérieurs, dotation, valeur résiduelle, cessions et plus
 ou moins-values à court et à long terme) et l'expose par `Amortis::Api`
 (`register`, `statement`). Le branchement dans la 2035 de `liberal` et la
 liasse de `teledec` passe par le contrat du cœur : amendements proposés
-A-AMO-2 et A-AMO-3.
+A-AMO-2 et A-AMO-3. _Réalisés : D-AMO-017 et D-AMO-018 (20 octobre
+2026)._
 
 === D-AMO-015 — Interface : HTMX d'abord (9 octobre 2026)
 
@@ -251,10 +254,121 @@ l'acteur réel : `accounting.entry.post` et l'écriture dans le journal,
 `accounting.entry.cancel`, `accounting.account.write`,
 `accounting.entry.read` (acquisitions à inscrire).
 
+=== D-AMO-017 — Annexes 2054 et 2055 fournies à TELEDEC (A-AMO-2 réalisé, 20 octobre 2026)
+
+*Contexte.* L'accroche demandée par A-AMO-2 est livrée par
+`partiduo-teledec` 0.1.5 (`Teledec::Api.register_annexes`, sa décision
+D-TDC13-001) plutôt que par le cœur : seul `teledec` connaît la liasse et
+ses millésimes.
+
+*Choix.*
+
+* `Amortis::Annexes` (métier, sans référence à TELEDEC) traduit l'état de
+  l'exercice (`Statements.statement`, D-AMO-013) en zones des formulaires
+  2054 et 2055 de TELEDEC, par une table datée par millésime (`TABLES`,
+  rang `AAAA01` ; millésime = année du lendemain de la clôture, règle de
+  TELEDEC) : seule la table du millésime 2023, dernière version publiée,
+  existe ; elle vaut ensuite. Par rubrique : 2054 brut au début,
+  augmentations, diminutions par cession ou mise hors service, brut à la
+  fin ; 2055 cadre A amortissements au début, dotations, diminutions, à la
+  fin (frais d'établissement, incorporelles, corporelles) ; 2055 cadre B
+  dérogatoires (dotations et reprises, différentiel de durée et mode
+  dégressif, mouvement net) ; totaux (Total III des corporelles,
+  Total IV des financières, Total I des incorporelles de la 2055, Total II
+  des corporelles amortissables, total général). Montants arrondis à
+  l'euro ligne par ligne, totaux recalculés sur les lignes arrondies,
+  zones nulles omises. Les colonnes de réévaluation et de virement de poste
+  à poste restent vides (l'extension n'en tient pas) ; le fonds commercial
+  reste dans les autres incorporelles ; la rubrique « autres » (compte
+  hors des rubriques du PCG) n'est reprise dans aucune zone.
+* Contrat : `Amortis::Api.liasse_annexes(actor, fiscal_year_id)`.
+* Branchement : `src/partiduo-amortis/teledec.cr` (`require
+  "partiduo-teledec"`, puis `register_annexes("AMORTIS", %w[2054 2055])`),
+  fichier à part sur le modèle de `partiduo-amortis/ui/bulma` : le métier
+  ne dépend pas de `partiduo-teledec`, qui n'est qu'une dépendance de
+  développement (specs). La distribution qui compose les deux extensions
+  ajoute `require "partiduo-amortis/teledec"`.
+* France seulement (`nil` en Belgique) ; TELEDEC ne consulte l'extension
+  que si elle est active et que la liasse est du réel normal.
+
+*Compatibilité.* Aucune donnée ni migration. Les dotations non encore
+passées comptent dans les annexes comme dans l'état (D-AMO-013) : la
+liasse se transmet après les écritures d'inventaire.
+
+=== D-AMO-018 — Immobilisations de la 2035 fournies au module `liberal` (A-AMO-3 réalisé, 20 octobre 2026)
+
+*Choix.* L'extension s'enregistre au chargement (`app.cr`) par
+`Partiduo::Api::Liberal.register_asset_source("AMORTIS")` (D-AMD-023 du
+cœur) : la 2035 d'un professionnel libéral qui tient la Comptabilité et
+l'extension lit le registre fiscal de l'exercice clos dans l'année
+(`Statements.register`, D-AMO-014) au lieu du registre linéaire du module :
+lignes du tableau des immobilisations (base, amortissements antérieurs,
+dotation de l'année, catégorie du module déduite de la rubrique et du
+compte : 207 fonds commercial, 2184 mobilier) et cessions (prix, valeur
+nette, amortissements, plus ou moins-values à court et à long terme).
+`nil` hors de France, sans exercice pour l'année ou sans immobilisation :
+la 2035 garde alors le registre du module. Contrat :
+`Amortis::Api.liberal_assets(actor, year)`.
+
+*Registre gardé.* L'écran et l'export du registre de la 2035
+(`Api.register`) restent : ils détaillent ce que la 2035 ne montre pas
+(mode, taux, cumul, valeur nette par immobilisation) et servent au
+contrôle de la 2035 préparée ; ils ne sont plus « à reporter ».
+
+*Compatibilité.* Aucune donnée. Une 2035 déjà préparée change d'empreinte
+si l'extension tient des immobilisations pour l'année (le module le
+signale : `frozen_changed` pour une année figée) ; un registre du module
+non vide la même année est signalé (`asset_register_ignored`), jamais
+additionné.
+
+=== D-AMO-019 — Ligne d'acquisition relue par son identifiant (A-AMO-4 réalisé, 20 octobre 2026)
+
+*Choix.* Le rattachement d'une acquisition (`Checks`, écriture de la
+ligne, préremplissage de la saisie) relit la ligne par
+`Accounting.entry_line` (D-AMD-010 du cœur) puis son écriture
+(`EntryLineView#entry_id`, `Accounting.entry`) :
+`Candidates.find`, `Api.candidate(actor, line_id)`. Ligne illisible pour
+l'acteur, au crédit, hors d'un compte d'immobilisation, d'une écriture
+extournée ou d'extourne, antérieure aux exercices ouverts, ou déjà citée :
+pas une acquisition à inscrire. La liste des acquisitions à inscrire lit
+les écritures des exercices ouverts page après page (500 par lecture, le
+plafond du contrat), sans limite totale.
+
+*Alternative écartée.* Filtrer la liste par `EntryQuery#line_ids` : il
+faudrait connaître les lignes avant de les chercher ; il ne sert qu'à
+relire des lignes déjà connues, ce que `entry_line` fait directement.
+
+*Compatibilité.* Aucune donnée : `entry_id` et `entry_line_id` des
+immobilisations sont inchangés.
+
+=== D-AMO-020 — Exclue du dossier d'un foyer par le manifeste (A-AMO-1 réalisé, 20 octobre 2026 ; remplace D-AMO-002)
+
+*Choix.* `incompatible_with_kind "household"` (D-AMD-005 du cœur) au
+manifeste, à la place de `ModuleDisabled` levé par le contrat dans un
+dossier foyer et de `incompatible_with "PERSO"`. Le cœur refuse
+l'activation dans un foyer (`modules.errors.activation.excluded_kind`), le
+provisionnement d'un foyer avec l'extension, et le démarrage d'un foyer où
+elle serait active. L'incompatibilité avec `PERSO` disparaît : `PERSO`
+n'agit que dans un foyer (son contrat lève `ModuleDisabled` ailleurs,
+D-PER-001), dont `AMORTIS` est désormais exclue ; les garder actives
+ensemble dans un dossier d'entreprise n'a pas d'effet.
+
+*Compatibilité.* Un dossier foyer où `AMORTIS` aurait été activée (le cœur
+ne l'empêchait pas) refuse désormais de démarrer, avec le message
+« AMORTIS est exclu des dossiers de type household, actif ». Il n'y a
+aucune donnée à perdre : le contrat y refusait tout appel, rien n'a pu
+être saisi ; les tables `amortis_*` y sont vides. Traitement : désactiver
+la pièce dans ce dossier (ligne `AMORTIS` de `modules_activation` passée
+inactive par l'opérateur, ou retrait de `amortis` de `PARTIDUO_MODULES`
+quand la table est vide) ; aucune migration de l'extension ne touche la
+table du registre du cœur. Les dossiers d'entreprise ne voient aucun
+changement.
+
 == Amendements proposés au contrat du cœur
 
 À soumettre à l'utilisateur ; l'extension les contourne sans modifier
-`partiduo-app`.
+`partiduo-app`. Adoptés le 13 octobre 2026 (ADR-003, « Amendements
+adoptés le 13 octobre 2026 ») ; réalisés le 20 octobre 2026, voir chacun.
 
 A-AMO-1 — Exclure une extension d'un type de dossier (ADR-011 A1, A3)::
   Permettre à une extension de se déclarer exclue d'un type
@@ -264,7 +378,9 @@ A-AMO-1 — Exclure une extension d'un type de dossier (ADR-011 A1, A3)::
   Aujourd'hui `Kind#excluded` est fixé par le cœur (modules d'entreprise du
   cœur) et contrôlé au seul provisionnement. Contournement en place
   (D-AMO-002) : `ModuleDisabled` dans un dossier foyer et
-  `incompatible_with "PERSO"`.
+  `incompatible_with "PERSO"`. *Réalisé le 20 octobre 2026* : D-AMD-005 du
+  cœur, `incompatible_with_kind "household"`, contournement retiré
+  (D-AMO-020).
 
 A-AMO-2 — Annexes de la liasse fournies par une extension (télédéclaration)::
   Un point d'accroche du cœur où une extension déclare les cases d'un
@@ -275,6 +391,9 @@ A-AMO-2 — Annexes de la liasse fournies par une extension (télédéclaration)
   joindrait à la liasse comme il joint la 2035. Sans lui, `teledec` devrait
   dépendre du shard `partiduo-amortis`. Contournement : états à l'écran et
   en CSV ou PDF, à reporter ; chiffres exposés par `Amortis::Api.statement`.
+  *Réalisé le 20 octobre 2026* : accroche dans `partiduo-teledec`
+  (`Teledec::Api.register_annexes`, D-TDC13-001), fournisseur
+  `src/partiduo-amortis/teledec.cr` (D-AMO-017).
 
 A-AMO-3 — Immobilisations de la 2035 fournies par une extension (module `liberal`)::
   Une source d'immobilisations enregistrable auprès du module `liberal`
@@ -283,12 +402,14 @@ A-AMO-3 — Immobilisations de la 2035 fournies par une extension (module `liber
   immobilisations et des amortissements, dotation de l'exercice, plus ou
   moins-values), les plans d'`AMORTIS` (dégressif, composants, cessions)
   au lieu de son registre linéaire. Contournement : registre de la 2035
-  tenu et exporté par l'extension (D-AMO-014).
+  tenu et exporté par l'extension (D-AMO-014). *Réalisé le 20 octobre
+  2026* : D-AMD-023 du cœur, source enregistrée (D-AMO-018).
 
 A-AMO-4 — Lecture d'une ligne d'écriture par son identifiant (Comptabilité)::
   `Partiduo::Api::Accounting.entry_line(actor, id)` (ou un critère
   `line_ids` d'`EntryQuery`) pour rattacher une acquisition sans relire les
   écritures des exercices ouverts. Contournement : recherche par préfixe
-  de compte `2`, 500 écritures au plus (D-AMO-004).
+  de compte `2`, 500 écritures au plus (D-AMO-004). *Réalisé le 20 octobre
+  2026* : D-AMD-010 du cœur, `entry_line` (D-AMO-019).
 
 Aucun nouvel événement n'est demandé à ADR-003 D7.

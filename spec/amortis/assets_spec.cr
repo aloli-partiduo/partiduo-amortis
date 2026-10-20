@@ -113,6 +113,39 @@ describe "Registre des immobilisations (D-AMO-003, D-AMO-007, D-AMO-012)" do
     Api.check_asset(S.accountant, asset_input(entry_line_id: 999_999_i64)).error_keys.should eq(["amortis.errors.asset.entry_line.unknown"])
   end
 
+  it "lit toutes les acquisitions page après page et relit une ligne par son identifiant (D-AMO-019)" do
+    S.setup
+    S.account("2183")
+    post = ->(account : String, side : Acc::Side, amount : String, day : String) do
+      other = side.debit? ? Acc::Side::Credit : Acc::Side::Debit
+      lines = [Acc::EntryLineInput.new(account, side, S.d(amount), label: "Ligne #{account}"),
+               Acc::EntryLineInput.new("400", other, S.d(amount))]
+      Acc.post_entry(S.accountant, Acc::EntryInput.new(ledger_id: S.misc_ledger.id, date: S.date(day), lines: lines,
+        label: "Écriture #{account}")).value!
+    end
+    entries = (1..5).map { |index| post.call("2183", Acc::Side::Debit, "#{index}00", "2026-05-0#{index}") }
+    credit = post.call("2183", Acc::Side::Credit, "50", "2026-05-06")
+    Amortis::Candidates.page_size = 2
+    begin
+      Api.candidates(S.accountant).map(&.amount).should eq(%w[100 200 300 400 500].map { |text| S.d(text) })
+    ensure
+      Amortis::Candidates.page_size = 500
+    end
+    line = entries.last.lines.find!(&.side.debit?)
+    found = present(Api.candidate(S.accountant, line.id))
+    {found.entry_id, found.account, found.amount, found.label}.should eq({entries.last.id, "2183", S.d("500"), "Ligne 2183"})
+    # Ligne au crédit, ligne illisible pour l'acteur, ligne inconnue : rien.
+    Api.candidate(S.accountant, credit.lines.find!(&.side.credit?).id).should be_nil
+    Api.candidate(S.reader, line.id).should be_nil
+    Api.candidate(S.accountant, 999_999_i64).should be_nil
+    # Écriture extournée : plus une acquisition à inscrire.
+    Acc.cancel_entry(S.accountant, Acc::CancelEntryInput.new(entries.first.id, S.date("2026-05-31"))).value!
+    Api.candidate(S.accountant, entries.first.lines.find!(&.side.debit?).id).should be_nil
+    view = Api.create_asset(S.accountant, asset_input(label: "Serveur", gross: "500", entry_line_id: line.id)).value!
+    view.entry_id.should eq(entries.last.id)
+    Api.candidate(S.accountant, line.id).should be_nil
+  end
+
   it "montre une tuile : immobilisations en service, valeur nette, acquisitions à inscrire" do
     S.setup
     S.asset("Ordinateur", "2183", "1800", "2026-02-10", months: 36)

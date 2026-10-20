@@ -6,10 +6,11 @@
 # * Dépendance : `ACCOUNTING` — les dotations, dépréciations et sorties
 #   d'actif sont des écritures d'inventaire passées par le service
 #   d'écriture du module, dans un journal d'opérations diverses.
-# * Incompatibilité (ADR-011 A1) : `PERSO`, l'extension des finances d'un
-#   foyer — un foyer n'amortit rien. Le type de dossier « foyer » n'est pas
-#   un code du registre : il est refusé par le contrat (D-AMO-002,
-#   amendement proposé A-AMO-1).
+# * Exclusion (ADR-011 A3, A-AMO-1 réalisé par D-AMD-005 du cœur) : le
+#   dossier d'un foyer (`incompatible_with_kind "household"`) — un foyer
+#   n'amortit rien ; le cœur refuse l'activation, le provisionnement et le
+#   démarrage (D-AMO-020). L'incompatibilité avec `PERSO`, qui n'agit que
+#   dans un foyer, n'a plus lieu d'être.
 # * Permissions (D4) : `amortis.read` (registre, plans, états),
 #   `amortis.write` (inscrire, modifier, déprécier, céder ; proposer et
 #   passer les écritures, les extourner), `amortis.admin` (réglages,
@@ -27,7 +28,7 @@ Partiduo::Modules.register do
   version Amortis::VERSION
   requires_core "~> 0.1"
   depends_on "ACCOUNTING"
-  incompatible_with "PERSO"
+  incompatible_with_kind "household"
 
   permission "amortis.read"
   permission "amortis.write"

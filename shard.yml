@@ -1,5 +1,5 @@
 name: partiduo-amortis
-version: 0.1.2
+version: 0.1.3
 
 description: |
   Extension des immobilisations et des amortissements de Partiduo (ADR-003,
@@ -37,6 +37,12 @@ development_dependencies:
   # la distribution l'apporte elle-même.
   partiduo-ui-bulma:
     github: aloli-partiduo/partiduo-ui-bulma
+    branch: development
+  # L'extension TELEDEC : `src/partiduo-amortis/teledec.cr` s'y enregistre
+  # comme fournisseur des annexes 2054 et 2055 (A-AMO-2) ; requis à part par
+  # la distribution (`require "partiduo-amortis/teledec"`), qui l'apporte.
+  partiduo-teledec:
+    github: aloli-partiduo/partiduo-teledec
     branch: development
   ameba:
     github: crystal-ameba/ameba
