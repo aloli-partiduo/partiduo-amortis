@@ -364,6 +364,38 @@ quand la table est vide) ; aucune migration de l'extension ne touche la
 table du registre du cœur. Les dossiers d'entreprise ne voient aucun
 changement.
 
+=== D-AMO-021 — Tableau 2033-C du régime simplifié fourni à TELEDEC (22 octobre 2026)
+
+*Contexte.* `partiduo-teledec` ouvre la 2033-C (immobilisations,
+amortissements, plus et moins-values) du régime simplifié par la même
+accroche que la 2054 et la 2055 (A-AMO-2, sa décision D-TDC13-002), pour
+une liasse `is_rsi` ou `bic_rsi`.
+
+*Choix.*
+
+* `Annexes.boxes` rend aussi le formulaire `2033-C`, tiré du même état de
+  l'exercice : immobilisations au début (`A`), augmentations (`B`),
+  diminutions (`C`), à la fin (`D`) ; amortissements au début (`F`),
+  dotations (`G`), diminutions (`H`), à la fin (`J`) ; une ligne par
+  regroupement de rubriques (`SIMPLIFIED_2023`) : autres incorporelles
+  (frais d'établissement et incorporelles, fonds commercial compris, comme
+  à la 2054), terrains, constructions, installations techniques,
+  installations générales, matériel de transport, autres corporelles
+  (bureau, autres, et les immobilisations en cours et avances, que la
+  2033-C n'a pas en ligne propre), financières ; totaux recalculés sur les
+  lignes arrondies. Table datée par millésime (rang 202301, zones
+  identiques en 2025) ; zones nulles omises.
+* Branchement : `register_annexes("AMORTIS", %w[2054 2055 2033-C])`.
+  L'extension rend les trois formulaires ; TELEDEC ne joint que ceux du
+  régime de la liasse.
+* Non rempli : réévaluations (`E`), cadre du fonds commercial (`AL` à
+  `AP`), plus et moins-values (répétition des éléments cédés et totaux,
+  non transmise par TELEDEC) ; les amortissements dérogatoires relèvent de
+  la 2033-D.
+
+*Compatibilité.* Aucune donnée ni migration ; la liasse du réel normal est
+inchangée (2054 et 2055 seules).
+
 == Amendements proposés au contrat du cœur
 
 À soumettre à l'utilisateur ; l'extension les contourne sans modifier

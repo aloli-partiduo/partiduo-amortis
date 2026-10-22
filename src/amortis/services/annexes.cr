@@ -2,7 +2,8 @@
 
 module Amortis
   # Annexes 2054 (immobilisations) et 2055 (amortissements) de la liasse du
-  # régime réel normal, en zones de TELEDEC (A-AMO-2, D-AMO-017) : rubriques
+  # régime réel normal, et tableau 2033-C du régime simplifié (D-AMO-021),
+  # en zones de TELEDEC (A-AMO-2, D-AMO-017) : rubriques
   # de l'état de l'exercice (`Statements.statement`, D-AMO-013) → zones des
   # formulaires, par une table datée par millésime, comme la table de la
   # 2035 du module `liberal`. Montants arrondis à l'euro ligne par ligne,
@@ -74,6 +75,45 @@ module Amortis
     # Tables par premier millésime d'application (rang `AAAA01`).
     TABLES = {202301 => TABLE_2023}
 
+    # 2033-C du régime simplifié (D-AMO-021) : lettre de la ligne de chaque
+    # rubrique dans le cadre des immobilisations (`A` fonds commercial, `B`
+    # autres incorporelles, `C` terrains, `D` constructions, `E`
+    # installations techniques, `F` installations générales, `G` matériel de
+    # transport, `H` autres corporelles, `J` financières, `K` total) et dans
+    # celui des amortissements (`A` incorporelles, `B` terrains, `C`
+    # constructions, `D` installations techniques, `E` installations
+    # générales, `F` matériel de transport, `G` autres corporelles, `H`
+    # total ; aucune pour ce qui ne s'amortit pas). Zone = colonne + ligne :
+    # immobilisations au début `A`, augmentations `B`, diminutions `C`, à la
+    # fin `D` ; amortissements au début `F`, dotations `G`, diminutions `H`,
+    # à la fin `J`. Comme pour la 2054, le fonds commercial reste dans les
+    # autres incorporelles (pas de ligne `A`, ni de cadre `AL` à `AP`) ; les
+    # immobilisations en cours et les avances vont aux autres corporelles,
+    # la 2033-C n'ayant pas de ligne pour elles ; les colonnes de
+    # réévaluation (`E`) restent vides. Zones identiques aux millésimes 2023
+    # (`2033C.xls`) et 2025 (`2033C2-2025.json`).
+    SIMPLIFIED_2023 = {
+      "establishment"     => {'B', 'A'},
+      "intangible"        => {'B', 'A'},
+      "land"              => {'C', 'B'},
+      "building_own"      => {'D', 'C'},
+      "building_other"    => {'D', 'C'},
+      "building_fittings" => {'D', 'C'},
+      "technical"         => {'E', 'D'},
+      "general_fittings"  => {'F', 'E'},
+      "transport"         => {'G', 'F'},
+      "office"            => {'H', 'G'},
+      "other_tangible"    => {'H', 'G'},
+      "in_progress"       => {'H', nil},
+      "advances"          => {'H', nil},
+      "participations"    => {'J', nil},
+      "securities"        => {'J', nil},
+      "loans"             => {'J', nil},
+    } of String => {Char, Char?}
+    SIMPLIFIED_TABLES    = {202301 => SIMPLIFIED_2023}
+    GROSS_COLUMNS        = {'A', 'B', 'C', 'D'}
+    DEPRECIATION_COLUMNS = {'F', 'G', 'H', 'J'}
+
     # Millésime de la liasse d'un exercice clos le `ends_on` : année de
     # campagne, celle du lendemain de la clôture (règle de TELEDEC), au rang.
     def self.rank(ends_on : Time) : Int32
@@ -85,11 +125,14 @@ module Amortis
       TABLES[TABLES.keys.select(&.<=(rank)).max? || TABLES.keys.min]
     end
 
-    # Cases 2054 et 2055 de l'état `view` (régime français) ; `nil` hors de
-    # France ou si tout est nul.
+    # Cases 2054 et 2055 (réel normal) et 2033-C (simplifié) de l'état
+    # `view` (régime français) ; `nil` hors de France ou si tout est nul.
+    # Les trois formulaires sont rendus : TELEDEC ne joint que ceux du
+    # régime de la liasse (D-TDC13-002 de `partiduo-teledec`).
     def self.boxes(view : Api::StatementView) : Hash(String, Hash(String, D))?
       return unless view.regime == "fr"
-      table = table(rank(view.exercise.ends_on))
+      rank = rank(view.exercise.ends_on)
+      table = table(rank)
       values = view.rows.to_h { |row| {row.rubric, amounts(row)} }
       result = {"2054" => {} of String => D, "2055" => {} of String => D}
       table.rubrics.each do |rubric, line|
@@ -98,8 +141,37 @@ module Amortis
       table.totals.each do |(line, rubrics)|
         put(result, line, sum(rubrics.compact_map { |rubric| values[rubric]? }))
       end
+      result["2033-C"] = simplified(values, rank)
       result.reject! { |_, zones| zones.empty? }
       result.empty? ? nil : result
+    end
+
+    # Cases de la 2033-C : lignes réunies par lettre (montants déjà
+    # arrondis), puis totaux `K` (immobilisations) et `H` (amortissements)
+    # recalculés sur ces lignes.
+    def self.simplified(values : Hash(String, Array(D)), rank : Int32) : Hash(String, D)
+      table = SIMPLIFIED_TABLES[SIMPLIFIED_TABLES.keys.select(&.<=(rank)).max? || SIMPLIFIED_TABLES.keys.min]
+      gross = Hash(Char, Array(D)).new { |hash, key| hash[key] = Array(D).new(4, D.new(0)) }
+      depreciation = Hash(Char, Array(D)).new { |hash, key| hash[key] = Array(D).new(4, D.new(0)) }
+      table.each do |rubric, (gross_line, depreciation_line)|
+        amounts = values[rubric]? || next
+        4.times do |index|
+          gross[gross_line][index] += amounts[index]
+          gross['K'][index] += amounts[index]
+        end
+        depreciation_line.try do |line|
+          4.times do |index|
+            depreciation[line][index] += amounts[4 + index]
+            depreciation['H'][index] += amounts[4 + index]
+          end
+        end
+      end
+      zones = {} of String => D
+      gross.each { |line, list| GROSS_COLUMNS.each_with_index { |column, index| set(zones, "#{column}#{line}", list[index]) } }
+      depreciation.each do |line, list|
+        DEPRECIATION_COLUMNS.each_with_index { |column, index| set(zones, "#{column}#{line}", list[index]) }
+      end
+      zones
     end
 
     # Montants d'une rubrique arrondis à l'euro : brut (4), amortissements

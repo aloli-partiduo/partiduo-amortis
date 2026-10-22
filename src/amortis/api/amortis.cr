@@ -363,8 +363,9 @@ module Amortis
       Statements.register(Schedules::Context.new, Records.fiscal_exercise(fiscal_year_id))
     end
 
-    # Annexes 2054 et 2055 de la liasse d'un exercice, en zones de TELEDEC
-    # (A-AMO-2, D-AMO-017) : formulaire → zone → montant en euros entiers ;
+    # Annexes 2054 et 2055 (réel normal) et tableau 2033-C (simplifié) de
+    # la liasse d'un exercice, en zones de TELEDEC (A-AMO-2, D-AMO-017,
+    # D-AMO-021) : formulaire → zone → montant en euros entiers ;
     # `nil` hors de France ou si tout est nul. Fournies à
     # `Teledec::Api.register_annexes` par `src/partiduo-amortis/teledec.cr`.
     def self.liasse_annexes(actor : Actor, fiscal_year_id : Int64) : Hash(String, Hash(String, BigDecimal))?

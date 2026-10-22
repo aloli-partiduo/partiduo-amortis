@@ -19,7 +19,7 @@ private def zones(pairs : Hash(String, Int32)) : Hash(String, BigDecimal)
   pairs.transform_values { |value| BigDecimal.new(value) }
 end
 
-describe "Annexes 2054 et 2055 de la liasse, fournies à TELEDEC (A-AMO-2, D-AMO-017)" do
+describe "Annexes 2054, 2055 et 2033-C de la liasse, fournies à TELEDEC (A-AMO-2, D-AMO-017, D-AMO-021)" do
   it "traduit les rubriques de l'état de l'exercice en zones de TELEDEC, arrondies à l'euro" do
     portfolio
     boxes = present(Api.liasse_annexes(S.reader, S.fiscal_year(2026).id))
@@ -42,6 +42,17 @@ describe "Annexes 2054 et 2055 de la liasse, fournies à TELEDEC (A-AMO-2, D-AMO
       "BM" => 744, "CM" => 1195, "EM" => 2244, "HM" => -305,
       "BN" => 744, "CN" => 1195, "EN" => 2244, "HN" => -305,
     }))
+    boxes["2033-C"].should eq(zones({
+      "AC" => 50000, "DC" => 50000,                               # terrains
+      "BE" => 10000, "DE" => 10000,                               # installations techniques
+      "AG" => 30000, "CG" => 30000,                               # matériel de transport, cédé
+      "BH" => 1800, "DH" => 1800,                                 # autres corporelles (bureau)
+      "AK" => 80000, "BK" => 11800, "CK" => 30000, "DK" => 61800, # total des immobilisations
+      "GD" => 1430, "JD" => 1430,                                 # amortissements, installations techniques
+      "FF" => 6000, "GF" => 2975, "HF" => 8975,                   # transport (sorti)
+      "GG" => 534, "JG" => 534,                                   # autres corporelles
+      "FH" => 6000, "GH" => 4939, "HH" => 8975, "JH" => 1964,     # total des amortissements
+    }))
     # Toutes les zones sont connues de TELEDEC au millésime de la liasse.
     target = Teledec::Remote::Millesime.target("liasse", "2026-12-31")
     text = boxes.transform_values(&.transform_values(&.to_s))
@@ -55,7 +66,7 @@ describe "Annexes 2054 et 2055 de la liasse, fournies à TELEDEC (A-AMO-2, D-AMO
   end
 
   it "s'enregistre auprès de TELEDEC : la liasse du réel normal joint ses annexes" do
-    Teledec::Api.annex_providers.map { |item| {item.code, item.forms} }.should eq([{"AMORTIS", %w[2054 2055]}])
+    Teledec::Api.annex_providers.map { |item| {item.code, item.forms} }.should eq([{"AMORTIS", %w[2054 2055 2033-C]}])
     portfolio
     Partiduo::Api::Modules.activate(S.system, Teledec::CODE).value!
     Teledec::Api.update_settings(S.system, Teledec::Api::SettingsInput.new("is_rn", "none", false)).value!
@@ -66,6 +77,18 @@ describe "Annexes 2054 et 2055 de la liasse, fournies à TELEDEC (A-AMO-2, D-AMO
     joined = filing.boxes.select(&.form.==("2054")).to_h { |box| {box.box, box.amount} }
     joined["MT"].should eq(BigDecimal.new(1800))
     filing.controls.map(&.key).select(&.starts_with?("teledec.controls.annex")).should be_empty
+
+    # Liasse simplifiée (IS ou BIC) : la 2033-C seule (D-AMO-021).
+    {"is_rsi", "bic_rsi"}.each do |tax_system|
+      Teledec::Api.update_settings(S.system, Teledec::Api::SettingsInput.new(tax_system, "none", false)).value!
+      simplified = Teledec::Api.prepare(S.system, input).value!
+      simplified.forms.last.should eq("2033")
+      simplified.details["annexes"].should eq("AMORTIS:2033-C")
+      simplified.boxes.map(&.form).uniq!.should eq(["2033-C"])
+      simplified.boxes.find!(&.box.==("DK")).amount.should eq(BigDecimal.new(61800))
+      simplified.controls.map(&.key).select(&.starts_with?("teledec.controls.annex")).should be_empty
+    end
+    Teledec::Api.update_settings(S.system, Teledec::Api::SettingsInput.new("is_rn", "none", false)).value!
 
     # Extension inactive : TELEDEC ne la consulte plus.
     Partiduo::Api::Modules.deactivate(S.system, Amortis::CODE).value!
