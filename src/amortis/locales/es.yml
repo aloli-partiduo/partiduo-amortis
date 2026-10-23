@@ -1,0 +1,176 @@
+es:
+  amortis:
+    module:
+      name: "Inmovilizado y amortizaciones"
+    permissions:
+      read: "Consultar el registro del inmovilizado, los planes de amortización y los estados"
+      write: "Dar de alta, modificar, deteriorar y dar de baja elementos del inmovilizado; contabilizar y extornar los asientos de cierre"
+      admin: "Configurar la extensión y crear las cuentas del cierre"
+    menu:
+      amortis: "Inmovilizado"
+      amortis_assets: "Registro del inmovilizado"
+      amortis_postings: "Asientos de cierre"
+      amortis_statements: "Estados del inmovilizado"
+      amortis_settings: "Inmovilizado y amortizaciones"
+    methods:
+      linear: "Lineal"
+      degressive: "Degresivo"
+      none: "No amortizable"
+    fiscal_methods:
+      same: "Igual que el plan contable"
+      linear: "Lineal (vida útil fiscal)"
+      degressive: "Degresivo fiscal"
+    day_counts:
+      actual: "Días reales del ejercicio"
+      "360": "Año comercial de 360 días"
+    disposal_kinds:
+      sale: "Enajenación"
+      scrap: "Desguace"
+    posting_kinds:
+      depreciation: "Dotaciones del ejercicio"
+      impairment: "Deterioro"
+      disposal: "Baja del activo"
+    posting_statuses:
+      posted: "Contabilizado"
+      cancelled: "Extornado"
+    statuses:
+      pending: "Pendiente de puesta en servicio"
+      in_service: "En servicio"
+      depreciated: "Totalmente amortizado"
+      disposed: "Dado de baja"
+    rubric_groups:
+      intangible: "Inmovilizado intangible"
+      tangible: "Inmovilizado material"
+      financial: "Inmovilizado financiero"
+      other: "Otros"
+      total: "Total"
+    rubrics:
+      establishment: "Gastos de establecimiento y de desarrollo"
+      intangible: "Otras partidas del inmovilizado intangible"
+      land: "Terrenos"
+      building_own: "Construcciones en terreno propio"
+      building_other: "Construcciones en terreno ajeno"
+      building_fittings: "Instalaciones generales, acondicionamientos y adecuaciones de las construcciones"
+      technical: "Instalaciones técnicas, maquinaria y utillaje industriales"
+      general_fittings: "Instalaciones generales, acondicionamientos y adecuaciones diversos"
+      transport: "Elementos de transporte"
+      office: "Equipos de oficina e informáticos, mobiliario"
+      other_tangible: "Otro inmovilizado material"
+      in_progress: "Inmovilizado material en curso"
+      advances: "Anticipos"
+      participations: "Participaciones"
+      securities: "Otros valores inmovilizados"
+      loans: "Préstamos y otro inmovilizado financiero"
+      be_establishment: "Gastos de establecimiento"
+      be_intangible: "Inmovilizado intangible"
+      be_land_buildings: "Terrenos y construcciones"
+      be_plant: "Instalaciones, maquinaria y utillaje"
+      be_furniture_vehicles: "Mobiliario y material rodante"
+      be_leasing: "Arrendamiento financiero y derechos similares"
+      be_other_tangible: "Otro inmovilizado material"
+      be_in_progress: "Inmovilizado en curso y anticipos entregados"
+      be_financial: "Inmovilizado financiero"
+      other: "Otro inmovilizado"
+      total: "Total"
+    coefficient_sources:
+      cgi_39a_1960: "CGI, art. 39 A (bienes adquiridos antes de 2001)"
+      lf_2001: "Loi de finances pour 2001 (ley de presupuestos francesa)"
+      lfr_2008: "Loi de finances rectificative pour 2008 (ley de presupuestos rectificativa; bienes adquiridos del 4 de diciembre de 2008 al 31 de diciembre de 2009)"
+    default_accounts:
+      expense_account: "Dotaciones a la amortización del inmovilizado intangible y material"
+      impairment_expense_account: "Dotaciones por deterioro del inmovilizado intangible y material"
+      impairment_income_account: "Reversión del deterioro del inmovilizado intangible y material"
+      derogatory_account: "Amortizaciones fiscales excepcionales"
+      derogatory_expense_account: "Dotaciones a provisiones reglamentadas (inmovilizado)"
+      derogatory_income_account: "Reversión de provisiones reglamentadas (inmovilizado)"
+      disposal_expense_account: "Valores contables de los elementos del activo enajenados"
+      disposal_income_account: "Ingresos por enajenación de elementos del activo"
+      disposal_receivable_account: "Créditos por enajenación de inmovilizado"
+    accounts:
+      depreciation_of: "Amortizaciones — %{label}"
+      impairment_of: "Deterioros — %{label}"
+    entries:
+      depreciation: "Dotaciones a la amortización %{exercise}"
+      derogatory_charge: "Amortizaciones fiscales excepcionales %{exercise} (dotación)"
+      derogatory_release: "Amortizaciones fiscales excepcionales %{exercise} (reversión)"
+      derogatory_disposal: "Reversión de las amortizaciones fiscales excepcionales — baja de %{code}"
+      impairment: "Deterioro del elemento del inmovilizado %{code}"
+      disposal: "Baja del activo %{code} — %{label}"
+    errors:
+      choice:
+        invalid: "Valor no admitido: %{value}."
+      account:
+        missing: "La cuenta %{number} no existe en el plan de cuentas."
+        unset: "Una cuenta de los ajustes de la extensión no está indicada."
+      asset_account:
+        blank: "Indique la cuenta de inmovilizado."
+        invalid: "La cuenta %{number} no es una cuenta de inmovilizado (clase 2, excepto amortizaciones y deterioros)."
+      asset:
+        label:
+          blank: "Dé una denominación al elemento del inmovilizado."
+          too_long: "La denominación no debe superar %{max} caracteres."
+        code:
+          too_long: "El número de inventario no debe superar %{max} caracteres."
+          taken: "El número de inventario %{code} ya está en uso."
+        notes:
+          too_long: "Las notas no deben superar %{max} caracteres."
+        gross_value:
+          positive: "El valor bruto debe ser positivo."
+        residual_value:
+          range: "El valor residual debe ser positivo o cero e inferior al valor bruto."
+        life_months:
+          range: "La vida útil debe ir de 1 a %{max} meses."
+        fiscal_method:
+          be: "El plan fiscal distinto (amortización fiscal excepcional) no existe en Bélgica."
+          not_depreciable: "Un elemento no amortizable no tiene plan fiscal."
+        in_service_on:
+          before_acquisition: "La puesta en servicio no puede ser anterior a la adquisición."
+        parent:
+          invalid: "Este elemento principal no existe."
+          nested: "Un componente no puede tener a su vez componentes."
+          disposed: "El elemento principal se ha dado de baja del activo."
+        entry_line:
+          taken: "Esta línea de adquisición ya está vinculada a otro elemento del inmovilizado."
+          unknown: "Esta línea de adquisición no es una adquisición que dar de alta."
+        card:
+          unknown: "La ficha %{code} no existe."
+        locked: "Un asiento de cierre cita este elemento: extórnelo antes de modificar su plan."
+        in_use: "Hay asientos de cierre que citan este elemento: no se puede eliminar."
+      degressive:
+        too_short: "El degresivo fiscal exige una vida útil de al menos tres años."
+        used_asset: "El degresivo fiscal está reservado a los bienes nuevos."
+        be_abolished: "El degresivo está suprimido para los bienes adquiridos por una sociedad desde el 1 de enero de 2020."
+      impairment:
+        amount:
+          zero: "El importe del deterioro no puede ser cero."
+          too_large: "El deterioro supera el valor neto contable."
+          release_too_large: "La reversión supera los deterioros registrados."
+        date:
+          before_acquisition: "El deterioro no puede ser anterior a la adquisición."
+          after_disposal: "El deterioro no puede ser posterior a la baja del activo."
+        label:
+          too_long: "El concepto no debe superar %{max} caracteres."
+        posted: "El asiento de este deterioro ya está contabilizado."
+        in_use: "Un asiento de cierre cita este deterioro: no se puede eliminar."
+      disposal:
+        exists: "Este elemento ya se ha dado de baja del activo."
+        none: "Este elemento no se ha dado de baja del activo."
+        part_of_group: "Este componente se dio de baja con su elemento principal: pase por este."
+        posted: "El asiento de esta baja ya está contabilizado."
+        price:
+          negative: "El precio de enajenación no puede ser negativo."
+          scrap: "Un desguace no tiene precio de enajenación."
+        label:
+          too_long: "El concepto no debe superar %{max} caracteres."
+        date:
+          before_acquisition: "La baja no puede ser anterior a la adquisición."
+          impairment_after: "Hay un deterioro con fecha posterior a la baja."
+          later_posted: "Hay dotaciones contabilizadas de un ejercicio posterior a la baja: extórnelas primero."
+      posting:
+        nothing: "No hay ninguna dotación que contabilizar en este ejercicio."
+        cancelled: "Este asiento ya está extornado."
+        date:
+          outside: "La fecha debe estar dentro del ejercicio (del %{from} al %{to})."
+      ledger:
+        blank: "Elija un diario de operaciones diversas."
+        invalid: "Este diario no es un diario de operaciones diversas."

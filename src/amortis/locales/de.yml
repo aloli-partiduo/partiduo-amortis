@@ -1,0 +1,176 @@
+de:
+  amortis:
+    module:
+      name: "Anlagen und Abschreibungen"
+    permissions:
+      read: "Anlagenverzeichnis, Abschreibungspläne und Aufstellungen einsehen"
+      write: "Anlagegüter erfassen, ändern, außerplanmäßig abschreiben und abgehen lassen; Abschlussbuchungen buchen und stornieren"
+      admin: "Erweiterung einrichten und die Konten für den Abschluss anlegen"
+    menu:
+      amortis: "Anlagen"
+      amortis_assets: "Anlagenverzeichnis"
+      amortis_postings: "Abschlussbuchungen"
+      amortis_statements: "Anlagenaufstellungen"
+      amortis_settings: "Anlagen und Abschreibungen"
+    methods:
+      linear: "Linear"
+      degressive: "Degressiv"
+      none: "Nicht abschreibbar"
+    fiscal_methods:
+      same: "Wie der handelsrechtliche Plan"
+      linear: "Linear (steuerliche Nutzungsdauer)"
+      degressive: "Steuerlich degressiv"
+    day_counts:
+      actual: "Tatsächliche Tage des Geschäftsjahres"
+      "360": "Kaufmännisches Jahr mit 360 Tagen"
+    disposal_kinds:
+      sale: "Veräußerung"
+      scrap: "Verschrottung"
+    posting_kinds:
+      depreciation: "Abschreibungen des Geschäftsjahres"
+      impairment: "Wertminderung"
+      disposal: "Anlagenabgang"
+    posting_statuses:
+      posted: "Gebucht"
+      cancelled: "Storniert"
+    statuses:
+      pending: "Wartet auf Inbetriebnahme"
+      in_service: "In Betrieb"
+      depreciated: "Vollständig abgeschrieben"
+      disposed: "Abgegangen"
+    rubric_groups:
+      intangible: "Immaterielle Vermögensgegenstände"
+      tangible: "Sachanlagen"
+      financial: "Finanzanlagen"
+      other: "Sonstige"
+      total: "Summe"
+    rubrics:
+      establishment: "Gründungs- und Entwicklungskosten"
+      intangible: "Sonstige immaterielle Vermögensgegenstände"
+      land: "Grundstücke"
+      building_own: "Bauten auf eigenem Grund"
+      building_other: "Bauten auf fremdem Grund"
+      building_fittings: "Allgemeine Einrichtungen, Ein- und Umbauten an Gebäuden"
+      technical: "Technische Anlagen, Maschinen und Werkzeuge"
+      general_fittings: "Allgemeine Einrichtungen, sonstige Ein- und Umbauten"
+      transport: "Fahrzeuge"
+      office: "Büro- und IT-Ausstattung, Mobiliar"
+      other_tangible: "Sonstige Sachanlagen"
+      in_progress: "Anlagen im Bau"
+      advances: "Geleistete Anzahlungen"
+      participations: "Beteiligungen"
+      securities: "Sonstige Wertpapiere des Anlagevermögens"
+      loans: "Ausleihungen und sonstige Finanzanlagen"
+      be_establishment: "Gründungskosten"
+      be_intangible: "Immaterielle Anlagewerte"
+      be_land_buildings: "Grundstücke und Bauten"
+      be_plant: "Anlagen, Maschinen und Betriebsausstattung"
+      be_furniture_vehicles: "Geschäftsausstattung und Fahrzeuge"
+      be_leasing: "Leasing und ähnliche Rechte"
+      be_other_tangible: "Sonstige Sachanlagen"
+      be_in_progress: "Anlagen im Bau und geleistete Anzahlungen"
+      be_financial: "Finanzanlagen"
+      other: "Sonstige Anlagen"
+      total: "Summe"
+    coefficient_sources:
+      cgi_39a_1960: "CGI, art. 39 A (vor 2001 erworbene Güter)"
+      lf_2001: "Loi de finances pour 2001 (französisches Haushaltsgesetz)"
+      lfr_2008: "Loi de finances rectificative pour 2008 (Nachtragshaushaltsgesetz; vom 4. Dezember 2008 bis 31. Dezember 2009 erworbene Güter)"
+    default_accounts:
+      expense_account: "Abschreibungen auf immaterielle Vermögensgegenstände und Sachanlagen"
+      impairment_expense_account: "Wertberichtigungen auf immaterielle Vermögensgegenstände und Sachanlagen"
+      impairment_income_account: "Auflösung von Wertberichtigungen auf immaterielle Vermögensgegenstände und Sachanlagen"
+      derogatory_account: "Steuerliche Sonderabschreibungen"
+      derogatory_expense_account: "Zuführungen zu steuerrechtlichen Rückstellungen (Anlagen)"
+      derogatory_income_account: "Auflösung steuerrechtlicher Rückstellungen (Anlagen)"
+      disposal_expense_account: "Buchwerte abgegangener Vermögensgegenstände"
+      disposal_income_account: "Erlöse aus Anlagenabgängen"
+      disposal_receivable_account: "Forderungen aus Anlagenverkäufen"
+    accounts:
+      depreciation_of: "Abschreibungen — %{label}"
+      impairment_of: "Wertberichtigungen — %{label}"
+    entries:
+      depreciation: "Abschreibungen %{exercise}"
+      derogatory_charge: "Steuerliche Sonderabschreibungen %{exercise} (Zuführung)"
+      derogatory_release: "Steuerliche Sonderabschreibungen %{exercise} (Auflösung)"
+      derogatory_disposal: "Auflösung der steuerlichen Sonderabschreibungen — Abgang von %{code}"
+      impairment: "Wertminderung des Anlageguts %{code}"
+      disposal: "Anlagenabgang %{code} — %{label}"
+    errors:
+      choice:
+        invalid: "Nicht zulässiger Wert: %{value}."
+      account:
+        missing: "Das Konto %{number} existiert nicht im Kontenrahmen."
+        unset: "Ein Konto in den Einstellungen der Erweiterung ist nicht angegeben."
+      asset_account:
+        blank: "Geben Sie das Anlagekonto an."
+        invalid: "Das Konto %{number} ist kein Anlagekonto (Klasse 2, ohne Abschreibungen und Wertberichtigungen)."
+      asset:
+        label:
+          blank: "Geben Sie dem Anlagegut eine Bezeichnung."
+          too_long: "Die Bezeichnung darf höchstens %{max} Zeichen lang sein."
+        code:
+          too_long: "Die Inventarnummer darf höchstens %{max} Zeichen lang sein."
+          taken: "Die Inventarnummer %{code} ist bereits vergeben."
+        notes:
+          too_long: "Die Notizen dürfen höchstens %{max} Zeichen lang sein."
+        gross_value:
+          positive: "Der Bruttowert muss positiv sein."
+        residual_value:
+          range: "Der Restwert muss positiv oder null und kleiner als der Bruttowert sein."
+        life_months:
+          range: "Die Nutzungsdauer muss 1 bis %{max} Monate betragen."
+        fiscal_method:
+          be: "Einen getrennten steuerlichen Plan (steuerliche Sonderabschreibung) gibt es in Belgien nicht."
+          not_depreciable: "Ein nicht abschreibbares Anlagegut hat keinen steuerlichen Plan."
+        in_service_on:
+          before_acquisition: "Die Inbetriebnahme darf nicht vor dem Erwerb liegen."
+        parent:
+          invalid: "Dieses Hauptanlagegut existiert nicht."
+          nested: "Eine Komponente kann selbst keine Komponenten haben."
+          disposed: "Das Hauptanlagegut ist abgegangen."
+        entry_line:
+          taken: "Diese Erwerbszeile ist bereits einem anderen Anlagegut zugeordnet."
+          unknown: "Diese Erwerbszeile ist kein zu erfassender Erwerb."
+        card:
+          unknown: "Der Stammsatz %{code} existiert nicht."
+        locked: "Eine Abschlussbuchung verweist auf dieses Anlagegut: Stornieren Sie sie, bevor Sie seinen Plan ändern."
+        in_use: "Abschlussbuchungen verweisen auf dieses Anlagegut: Es kann nicht gelöscht werden."
+      degressive:
+        too_short: "Die steuerliche degressive Abschreibung erfordert eine Nutzungsdauer von mindestens drei Jahren."
+        used_asset: "Die steuerliche degressive Abschreibung ist neuen Gütern vorbehalten."
+        be_abolished: "Die degressive Abschreibung ist für Güter, die eine Gesellschaft seit dem 1. Januar 2020 erworben hat, abgeschafft."
+      impairment:
+        amount:
+          zero: "Der Betrag der Wertminderung darf nicht null sein."
+          too_large: "Die Wertminderung übersteigt den Nettobuchwert."
+          release_too_large: "Die Auflösung übersteigt die erfassten Wertminderungen."
+        date:
+          before_acquisition: "Die Wertminderung darf nicht vor dem Erwerb liegen."
+          after_disposal: "Die Wertminderung darf nicht nach dem Abgang liegen."
+        label:
+          too_long: "Der Buchungstext darf höchstens %{max} Zeichen lang sein."
+        posted: "Die Buchung dieser Wertminderung ist bereits erfolgt."
+        in_use: "Eine Abschlussbuchung verweist auf diese Wertminderung: Sie kann nicht gelöscht werden."
+      disposal:
+        exists: "Dieses Anlagegut ist bereits abgegangen."
+        none: "Dieses Anlagegut ist nicht abgegangen."
+        part_of_group: "Diese Komponente ist mit ihrem Hauptanlagegut abgegangen: Gehen Sie über dieses."
+        posted: "Die Buchung dieses Abgangs ist bereits erfolgt."
+        price:
+          negative: "Der Veräußerungspreis darf nicht negativ sein."
+          scrap: "Eine Verschrottung hat keinen Veräußerungspreis."
+        label:
+          too_long: "Der Buchungstext darf höchstens %{max} Zeichen lang sein."
+        date:
+          before_acquisition: "Der Abgang darf nicht vor dem Erwerb liegen."
+          impairment_after: "Eine Wertminderung ist nach dem Abgang datiert."
+          later_posted: "Abschreibungen eines Geschäftsjahres nach dem Abgang sind gebucht: Stornieren Sie diese zuerst."
+      posting:
+        nothing: "Für dieses Geschäftsjahr sind keine Abschreibungen zu buchen."
+        cancelled: "Diese Buchung ist bereits storniert."
+        date:
+          outside: "Das Datum muss im Geschäftsjahr liegen (vom %{from} bis %{to})."
+      ledger:
+        blank: "Wählen Sie ein Journal für sonstige Buchungen."
+        invalid: "Dieses Journal ist kein Journal für sonstige Buchungen."

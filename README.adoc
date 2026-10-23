@@ -85,7 +85,7 @@ src/
     ├── migrations/            # 0001 : tables et contraintes
     ├── services/              # calendrier, plans, coefficients, écritures, états (interne)
     ├── api/                   # contrat public Amortis::Api
-    └── locales/               # fr, en, nl
+    └── locales/               # fr, en, nl, de, es, it, pt
 ui/
 └── bulma/                     # interface pour partiduo-ui-bulma (application « amortis_ui »)
     ├── bulma.cr               # routes sous /ext/AMORTIS/, compteur du menu

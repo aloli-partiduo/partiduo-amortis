@@ -4,19 +4,19 @@ require "../spec_helper"
 
 # Traductions des écrans de l'extension (ADR-005 D7) : chaque route de
 # `/ext/AMORTIS/` servie en `GET` (liste tirée du routeur de Marten),
-# obtenue en fr, en et nl par un administrateur, sur un registre varié
-# (immobilisation en service dépréciée, composant, immobilisation pas
-# encore en service, véhicule cédé dont la sortie reste à passer,
-# écriture d'inventaire passée, acquisition à inscrire). Contrôle de
-# l'interface (`PartiduoUi::Translations`) : ni marqueur de traduction
-# absente, ni clé brute, ni interpolation non résolue, et toute route
-# atteinte par les liens des pages.
+# obtenue dans chaque langue de l'interface par un administrateur, sur
+# un registre varié (immobilisation en service dépréciée, composant,
+# immobilisation pas encore en service, véhicule cédé dont la sortie
+# reste à passer, écriture d'inventaire passée, acquisition à inscrire).
+# Contrôle de l'interface (`PartiduoUi::Translations`) : ni marqueur de
+# traduction absente, ni clé brute, ni interpolation non résolue, et
+# toute route atteinte par les liens des pages.
 
 private alias S = Amortis::SpecSupport
 private alias Api = Amortis::Api
 private alias Acc = Partiduo::Api::Accounting
 
-describe "Traductions des écrans AMORTIS (fr, en, nl)" do
+describe "Traductions des écrans AMORTIS (langues de l'interface)" do
   it "rend chaque écran dans chaque langue, sans clé absente, brute ni interpolation non résolue" do
     S.activate
     browser = PartiduoUi::Books.admin

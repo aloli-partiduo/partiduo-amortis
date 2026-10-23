@@ -1,0 +1,176 @@
+pt:
+  amortis:
+    module:
+      name: "Imobilizado e amortizações"
+    permissions:
+      read: "Consultar o registo do imobilizado, os planos de amortização e os mapas"
+      write: "Inscrever, editar, registar imparidades e alienar o imobilizado; lançar e estornar os lançamentos de regularização"
+      admin: "Configurar a extensão e criar as contas dos lançamentos de regularização"
+    menu:
+      amortis: "Imobilizado"
+      amortis_assets: "Registo do imobilizado"
+      amortis_postings: "Lançamentos de regularização"
+      amortis_statements: "Mapas do imobilizado"
+      amortis_settings: "Imobilizado e amortizações"
+    methods:
+      linear: "Linear"
+      degressive: "Degressivo"
+      none: "Não amortizável"
+    fiscal_methods:
+      same: "Idêntico ao plano contabilístico"
+      linear: "Linear (vida útil fiscal)"
+      degressive: "Degressivo fiscal"
+    day_counts:
+      actual: "Dias reais do exercício"
+      "360": "Ano comercial de 360 dias"
+    disposal_kinds:
+      sale: "Alienação"
+      scrap: "Abate"
+    posting_kinds:
+      depreciation: "Amortizações do exercício"
+      impairment: "Imparidade"
+      disposal: "Saída do ativo"
+    posting_statuses:
+      posted: "Lançado"
+      cancelled: "Estornado"
+    statuses:
+      pending: "A aguardar entrada em funcionamento"
+      in_service: "Em funcionamento"
+      depreciated: "Totalmente amortizado"
+      disposed: "Saído"
+    rubric_groups:
+      intangible: "Ativos intangíveis"
+      tangible: "Ativos fixos tangíveis"
+      financial: "Investimentos financeiros"
+      other: "Outros"
+      total: "Total"
+    rubrics:
+      establishment: "Despesas de instalação e de desenvolvimento"
+      intangible: "Outras rubricas de ativos intangíveis"
+      land: "Terrenos"
+      building_own: "Construções em terreno próprio"
+      building_other: "Construções em terreno alheio"
+      building_fittings: "Instalações gerais, arranjos e adaptações das construções"
+      technical: "Instalações técnicas, equipamento e ferramentas industriais"
+      general_fittings: "Instalações gerais, arranjos e adaptações diversos"
+      transport: "Equipamento de transporte"
+      office: "Equipamento administrativo e informático, mobiliário"
+      other_tangible: "Outros ativos fixos tangíveis"
+      in_progress: "Ativos fixos tangíveis em curso"
+      advances: "Adiantamentos"
+      participations: "Participações"
+      securities: "Outros títulos imobilizados"
+      loans: "Empréstimos e outros investimentos financeiros"
+      be_establishment: "Despesas de instalação"
+      be_intangible: "Ativos intangíveis"
+      be_land_buildings: "Terrenos e construções"
+      be_plant: "Instalações, máquinas e ferramentas"
+      be_furniture_vehicles: "Mobiliário e material circulante"
+      be_leasing: "Locação financeira e direitos similares"
+      be_other_tangible: "Outros ativos fixos tangíveis"
+      be_in_progress: "Imobilizado em curso e adiantamentos pagos"
+      be_financial: "Investimentos financeiros"
+      other: "Outro imobilizado"
+      total: "Total"
+    coefficient_sources:
+      cgi_39a_1960: "CGI, art. 39 A (bens adquiridos antes de 2001)"
+      lf_2001: "Lei do Orçamento francesa para 2001"
+      lfr_2008: "Lei do Orçamento retificativa francesa para 2008 (bens adquiridos de 4 de dezembro de 2008 a 31 de dezembro de 2009)"
+    default_accounts:
+      expense_account: "Amortizações do exercício de ativos intangíveis e tangíveis"
+      impairment_expense_account: "Perdas por imparidade de ativos intangíveis e tangíveis"
+      impairment_income_account: "Reversões de perdas por imparidade de ativos intangíveis e tangíveis"
+      derogatory_account: "Amortizações derrogatórias"
+      derogatory_expense_account: "Dotações para provisões regulamentadas (imobilizado)"
+      derogatory_income_account: "Reversões de provisões regulamentadas (imobilizado)"
+      disposal_expense_account: "Valores contabilísticos dos elementos do ativo alienados"
+      disposal_income_account: "Rendimentos das alienações de elementos do ativo"
+      disposal_receivable_account: "Créditos por alienações de imobilizado"
+    accounts:
+      depreciation_of: "Amortizações acumuladas — %{label}"
+      impairment_of: "Imparidades acumuladas — %{label}"
+    entries:
+      depreciation: "Amortizações do exercício %{exercise}"
+      derogatory_charge: "Amortizações derrogatórias %{exercise} (dotação)"
+      derogatory_release: "Amortizações derrogatórias %{exercise} (reversão)"
+      derogatory_disposal: "Reversão das amortizações derrogatórias — saída de %{code}"
+      impairment: "Imparidade do imobilizado %{code}"
+      disposal: "Saída do ativo %{code} — %{label}"
+    errors:
+      choice:
+        invalid: "Valor não admitido: %{value}."
+      account:
+        missing: "A conta %{number} não existe no plano de contas."
+        unset: "Uma conta das definições da extensão não está preenchida."
+      asset_account:
+        blank: "Indique a conta de imobilizado."
+        invalid: "A conta %{number} não é uma conta de imobilizado (classe 2, excluindo amortizações e imparidades)."
+      asset:
+        label:
+          blank: "Indique uma designação para o imobilizado."
+          too_long: "A designação não pode exceder %{max} caracteres."
+        code:
+          too_long: "O número de inventário não pode exceder %{max} caracteres."
+          taken: "O número de inventário %{code} já está em uso."
+        notes:
+          too_long: "As notas não podem exceder %{max} caracteres."
+        gross_value:
+          positive: "O valor bruto deve ser positivo."
+        residual_value:
+          range: "O valor residual deve ser positivo ou nulo e inferior ao valor bruto."
+        life_months:
+          range: "A vida útil deve ser de 1 a %{max} meses."
+        fiscal_method:
+          be: "O plano fiscal distinto (amortização derrogatória) não existe na Bélgica."
+          not_depreciable: "Um imobilizado não amortizável não tem plano fiscal."
+        in_service_on:
+          before_acquisition: "A entrada em funcionamento não pode ser anterior à aquisição."
+        parent:
+          invalid: "Este imobilizado principal não existe."
+          nested: "Um componente não pode ter, por sua vez, componentes."
+          disposed: "O imobilizado principal saiu do ativo."
+        entry_line:
+          taken: "Esta linha de aquisição já está associada a outro imobilizado."
+          unknown: "Esta linha de aquisição não é uma aquisição a inscrever."
+        card:
+          unknown: "A ficha %{code} não existe."
+        locked: "Um lançamento de regularização cita este imobilizado: estorne-o antes de alterar o seu plano."
+        in_use: "Há lançamentos de regularização que citam este imobilizado: não pode ser eliminado."
+      degressive:
+        too_short: "O degressivo fiscal exige uma vida útil de pelo menos três anos."
+        used_asset: "O degressivo fiscal está reservado aos bens novos."
+        be_abolished: "O degressivo foi suprimido para os bens adquiridos por uma sociedade desde 1 de janeiro de 2020."
+      impairment:
+        amount:
+          zero: "O montante da imparidade não pode ser nulo."
+          too_large: "A imparidade excede o valor líquido contabilístico."
+          release_too_large: "A reversão excede as imparidades reconhecidas."
+        date:
+          before_acquisition: "A imparidade não pode ser anterior à aquisição."
+          after_disposal: "A imparidade não pode ser posterior à saída do ativo."
+        label:
+          too_long: "A descrição não pode exceder %{max} caracteres."
+        posted: "O lançamento desta imparidade já foi efetuado."
+        in_use: "Um lançamento de regularização cita esta imparidade: não pode ser eliminada."
+      disposal:
+        exists: "Este imobilizado já saiu do ativo."
+        none: "Este imobilizado não saiu do ativo."
+        part_of_group: "Este componente saiu com o seu imobilizado principal: trate-o a partir deste."
+        posted: "O lançamento desta saída já foi efetuado."
+        price:
+          negative: "O preço de alienação não pode ser negativo."
+          scrap: "Um abate não tem preço de alienação."
+        label:
+          too_long: "A descrição não pode exceder %{max} caracteres."
+        date:
+          before_acquisition: "A saída não pode ser anterior à aquisição."
+          impairment_after: "Há uma imparidade datada após a saída."
+          later_posted: "Foram lançadas amortizações de um exercício posterior à saída: estorne-as primeiro."
+      posting:
+        nothing: "Nenhuma amortização a lançar neste exercício."
+        cancelled: "Este lançamento já está estornado."
+        date:
+          outside: "A data deve estar dentro do exercício (de %{from} a %{to})."
+      ledger:
+        blank: "Escolha um diário de operações diversas."
+        invalid: "Este diário não é um diário de operações diversas."
