@@ -73,16 +73,16 @@ de:
       other: "Sonstige Anlagen"
       total: "Summe"
     coefficient_sources:
-      cgi_39a_1960: "CGI, art. 39 A (vor 2001 erworbene Güter)"
+      cgi_39a_1960: "CGI, art. 39 A (vor 2001 erworbene Wirtschaftsgüter)"
       lf_2001: "Loi de finances pour 2001 (französisches Haushaltsgesetz)"
-      lfr_2008: "Loi de finances rectificative pour 2008 (Nachtragshaushaltsgesetz; vom 4. Dezember 2008 bis 31. Dezember 2009 erworbene Güter)"
+      lfr_2008: "Loi de finances rectificative pour 2008 (Nachtragshaushaltsgesetz; vom 4. Dezember 2008 bis 31. Dezember 2009 erworbene Wirtschaftsgüter)"
     default_accounts:
       expense_account: "Abschreibungen auf immaterielle Vermögensgegenstände und Sachanlagen"
       impairment_expense_account: "Wertberichtigungen auf immaterielle Vermögensgegenstände und Sachanlagen"
       impairment_income_account: "Auflösung von Wertberichtigungen auf immaterielle Vermögensgegenstände und Sachanlagen"
       derogatory_account: "Steuerliche Sonderabschreibungen"
-      derogatory_expense_account: "Zuführungen zu steuerrechtlichen Rückstellungen (Anlagen)"
-      derogatory_income_account: "Auflösung steuerrechtlicher Rückstellungen (Anlagen)"
+      derogatory_expense_account: "Zuführungen zum Sonderposten mit Rücklageanteil (Anlagen)"
+      derogatory_income_account: "Auflösung des Sonderpostens mit Rücklageanteil (Anlagen)"
       disposal_expense_account: "Buchwerte abgegangener Vermögensgegenstände"
       disposal_income_account: "Erlöse aus Anlagenabgängen"
       disposal_receivable_account: "Forderungen aus Anlagenverkäufen"
@@ -138,8 +138,8 @@ de:
         in_use: "Abschlussbuchungen verweisen auf dieses Anlagegut: Es kann nicht gelöscht werden."
       degressive:
         too_short: "Die steuerliche degressive Abschreibung erfordert eine Nutzungsdauer von mindestens drei Jahren."
-        used_asset: "Die steuerliche degressive Abschreibung ist neuen Gütern vorbehalten."
-        be_abolished: "Die degressive Abschreibung ist für Güter, die eine Gesellschaft seit dem 1. Januar 2020 erworben hat, abgeschafft."
+        used_asset: "Die steuerliche degressive Abschreibung ist neuen Wirtschaftsgütern vorbehalten."
+        be_abolished: "Die degressive Abschreibung ist für Wirtschaftsgüter, die eine Gesellschaft seit dem 1. Januar 2020 erworben hat, abgeschafft."
       impairment:
         amount:
           zero: "Der Betrag der Wertminderung darf nicht null sein."

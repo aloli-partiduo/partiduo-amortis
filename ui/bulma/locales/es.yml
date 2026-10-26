@@ -95,8 +95,8 @@ es:
       derogatory: "Excepcional"
       derogatory_cumul: "Excepcional acumulada"
       state: "Asiento"
-      posted: "Contabilizada"
-      partly_posted: "Contabilizada en parte"
+      posted: "Contabilizado"
+      partly_posted: "Contabilizado en parte"
       to_post: "Por contabilizar"
       disposed: "Baja"
     components:

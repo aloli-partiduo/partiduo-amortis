@@ -47,7 +47,7 @@ de:
       tabs:
         all: "Alle"
         in_service: "In Betrieb"
-        pending: "Wartend"
+        pending: "Ausstehend"
         depreciated: "Abgeschrieben"
         disposed: "Abgegangen"
     form:
@@ -112,7 +112,7 @@ de:
       amount: "Betrag"
       amount_help: "Positiv für eine Wertminderung, negativ für eine Auflösung."
       label: "Buchungstext"
-      post: "Buchung buchen"
+      post: "Buchen"
       delete: "Löschen"
       delete_confirm: "Diese Wertminderung löschen?"
     disposal:
@@ -170,7 +170,7 @@ de:
     postings:
       exercise: "Geschäftsjahr"
       no_exercise: "Kein Geschäftsjahr: Legen Sie eines in den Einstellungen an."
-      history: "Gebuchte Buchungen"
+      history: "Erfolgte Buchungen"
       none: "Keine Abschlussbuchungen."
       date: "Datum"
       kind: "Art"
@@ -182,7 +182,7 @@ de:
       cancel_confirm: "Diese Abschlussbuchung stornieren?"
     statements:
       statement: "Anlagen und Abschreibungen"
-      register: "Verzeichnis der 2035"
+      register: "Anlagenverzeichnis 2035"
       tabs: "Aufstellungen"
       intro_statement: "Tabellen der Anlagen 2054 (Anlagevermögen) und 2055 (Abschreibungen) der liasse fiscale (französische Steuererklärung); in Belgien Anlagenspiegel des Anhangs zum Jahresabschluss."
       intro_register: "Anlagen- und Abschreibungsverzeichnis der Erklärung 2035 (französische Gewinnerklärung der freien Berufe, steuerlicher Plan)."
@@ -248,15 +248,15 @@ de:
       day_count: "Prorata temporis"
       day_count_help: "Tageszählung der linearen Abschreibung; die französische degressive Abschreibung wird stets in Monaten berechnet."
       be_individual: "Steuerpflichtige natürliche Person"
-      be_individual_help: "Die degressive Abschreibung bleibt für Güter zulässig, die seit 2020 von einer natürlichen Person erworben wurden."
+      be_individual_help: "Die degressive Abschreibung bleibt für Wirtschaftsgüter zulässig, die seit 2020 von einer natürlichen Person erworben wurden."
       accounts: "Konten"
       create_accounts: "Fehlende Konten anlegen"
     flash:
       created: "Anlagegut %{code} erfasst."
       saved: "Gespeichert."
       deleted: "Gelöscht."
-      impairment_added: "Wertminderung gespeichert: Buchen Sie ihre Buchung."
-      disposed: "Abgang gespeichert: Buchen Sie seine Buchung."
+      impairment_added: "Wertminderung gespeichert: Buchen Sie sie jetzt."
+      disposed: "Abgang gespeichert: Buchen Sie ihn jetzt."
       disposal_cancelled: "Abgang aufgehoben."
       posted: "Abschlussbuchung gebucht."
       cancelled: "Abschlussbuchung storniert."
